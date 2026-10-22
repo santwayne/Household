@@ -40,11 +40,13 @@ Last verified: 56 automated tests pass; dashboard real browser (Chromium) mein c
 - 226 synthetic messages. Jo "model ke liye nahi" flagged hain wo sab rules se sahi parse hote hain (test se enforce). Rules ne 201 handle kiye, sab 201 sahi (precision 100%); 25 messages model ke liye (number words, lambe sentences) hain.
 - Model path measure nahi hua, isliye "90% target met" abhi pakka nahi.
 
+## Database-level isolation (RLS)
+Har household-table par Postgres row-level security hai; tenant kaam `sl_app` role aur `app.household_id` ke saath chalta hai (details: DEPLOY.md section 5). `server/test/rls.test.ts` ke 7 tests; policies ko jaan-boojh kar todkar check kiya ki tests fail hote hain.
+
 ## Baaki (bana hi nahi)
 - Receipt OCR, pantry photos, fuller preference learning (Phase 3).
 - Payments, billing, UPI/cards.
 - WhatsApp Groups API (abhi invite-link fallback).
-- Postgres row-level security (abhi application queries se isolation, tested).
 - Deployment (Docker/hosting), CI.
 - Support hours, country-wise legal review, videsh payments.
 - Interviews, pilot, Meta template approval, product name/domain/number: ye insaan ka kaam hai.

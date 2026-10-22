@@ -36,3 +36,11 @@ Create and get approved the templates named in `.env.example` (`food_reminder`, 
 - **Logs:** `docker compose logs -f app`.
 - **Updates:** `git pull && docker compose up -d --build`.
 - **Not included:** a managed host, monitoring/alerting and a secrets manager. Add those for real users.
+
+## 5. Database-level household isolation (row-level security)
+Every table that holds household data has a Postgres row-level security policy. Tenant work (dashboard requests and WhatsApp messages from a known member) runs in a transaction as the role `sl_app` with `app.household_id` set, so Postgres itself only shows and accepts that household's rows. With no household set it shows nothing.
+
+- The migration creates the role and policies on every start (safe to repeat). The database user in `DATABASE_URL` must be a superuser or allowed to `SET ROLE sl_app` (the migration grants this to a non-superuser owner).
+- **Trusted system paths** run as the connection's own role and are cross-household by nature: login by phone number, first-contact onboarding, the outbox sender, scheduled jobs and `/admin/pilot`. Keep that code small and reviewed.
+- Not row-secured on purpose: `recipes` (shared reference data), `conversation_state`, `login_tokens` (hashes only) and `ai_calls`. `test/rls.test.ts` fails if any other table lacks a policy.
+- What it protects against: a missing `WHERE`, a wrong id, a copy-paste bug. What it does not protect against: code that deliberately runs arbitrary SQL or changes `app.household_id` itself.
