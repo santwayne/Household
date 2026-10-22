@@ -107,6 +107,22 @@ export async function swapMeal(db: Db, householdId: string, mealId: string, reci
   return { mealId, recipeId: chosen.r.id, recipeName: chosen.r.name, estCost: chosen.cost };
 }
 
+/** Change how many people one meal is cooked for (a guest, someone away). Only this meal's cost and shopping items change. */
+export async function setMealServings(db: Db, householdId: string, mealId: string, servings: number) {
+  if (!Number.isInteger(servings) || servings < 1 || servings > 30) throw new ValidationError('Servings must be a whole number from 1 to 30');
+  const meal = await one<any>(db, `select pm.*, mp.id as plan_id from planned_meals pm join meal_plans mp on mp.id=pm.plan_id where pm.id=$1 and mp.household_id=$2`, [mealId, householdId]);
+  if (!meal) throw new NotFoundError('Meal not found');
+  const h = await getHousehold(db, householdId);
+  const prices = await loadPrices(db, householdId, h.country);
+  const recipe = (await loadRecipes(db)).find(r => r.id === meal.recipe_id)!;
+  const { cost } = recipeCost(recipe, servings, prices);
+  await db.query('update planned_meals set servings=$2, est_cost=$3 where id=$1', [mealId, servings, cost]);
+  await removeMealItems(db, householdId, mealId);
+  await addMealItems(db, householdId, mealId, recipe.ingredients, servings, recipe.base_servings);
+  await db.query('update meal_plans set est_total=(select coalesce(sum(est_cost),0) from planned_meals where plan_id=$1) where id=$1', [meal.plan_id]);
+  return { mealId, servings, estCost: cost };
+}
+
 export async function approvePlan(db: Db, householdId: string, planId: string) {
   const r = await db.query(`update meal_plans set status='approved' where id=$1 and household_id=$2`, [planId, householdId]);
   if (!r.rowCount) throw new NotFoundError('Plan not found');
@@ -157,6 +173,6 @@ export async function cookFromPantry(db: Db, householdId: string, limit = 3) {
       return { recipeId: r.id, name: r.name, have: haveList, missing, usesExpiring, score: ratio + usesExpiring.length * 0.3 };
     })
     .filter(r => r.have.length >= 1 && r.score >= 0.34)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))   // stable: equal scores never depend on row order
     .slice(0, limit);
 }

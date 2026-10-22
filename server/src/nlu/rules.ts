@@ -68,6 +68,25 @@ export function extractSplit(t: string): { names: string[]; rest: string } | nul
   return null;
 }
 
+/** "... Aman 500 Raj 400" (amounts) or "... Aman 60% Raj 40%" (percent) at the end of a purchase message. */
+const PAIR = String.raw`[\p{L}][\p{L}.'’-]*\s+\d[\d.,]*\s*(?:k|%)?`;
+const SHARES_TAIL = new RegExp(String.raw`[,;:(]?\s*((?:${PAIR}\s*(?:,|aur|and|&)?\s*){2,})\)?\s*$`, 'iu');
+export function extractShares(t: string): { kind: 'amounts' | 'percents'; map: Record<string, number>; rest: string } | null {
+  const m = SHARES_TAIL.exec(t);
+  if (!m || m.index === 0) return null;
+  const map: Record<string, number> = {};
+  let pct = 0, amt = 0;
+  for (const p of m[1].matchAll(/([\p{L}][\p{L}.'’-]*)\s+(\d[\d.,]*)\s*(k|%)?/giu)) {
+    const n = Number(p[2].replace(/,/g, '')) * (p[3]?.toLowerCase() === 'k' ? 1000 : 1);
+    if (!isFinite(n)) return null;
+    map[p[1].toLowerCase()] = n;
+    if (p[3] === '%') pct++; else amt++;
+  }
+  if (pct && amt) return null;                       // mixed: ambiguous, leave to the model
+  if (Object.keys(map).length < 2) return null;
+  return { kind: pct ? 'percents' : 'amounts', map, rest: t.slice(0, m.index).trim() };
+}
+
 type Rule = (t: string, raw: string) => Action | null;
 const A = (a: Partial<Action> & { intent: Action['intent'] }): Action => ({ confidence: 1, needs_confirmation: false, ...a }) as Action;
 const re = (src: string, flags = 'iu') => new RegExp(src, flags);
@@ -112,6 +131,7 @@ export const RULES: Rule[] = [
   (t) => (/^(?:undo|undo last|galti|galti hui|galat ho gaya|galat entry|last wala hata do|last entry hata do|cancel last|delete last|last hata do|undo karo)$/.test(t) ? A({ intent: 'undo' }) : null),
   (t) => (/^(?:help|madad|menu|options|kya kar sakte ho|kya kar sakta hai|kaise use karun|मदद|ਮਦਦ)$/.test(t) ? A({ intent: 'help' }) : null),
   (t) => (/^(?:hi|hello|hey|hii+|hlo|namaste|namaskar|sat sri akal|नमस्ते|ਸਤ ਸ੍ਰੀ ਅਕਾਲ)$/.test(t) ? A({ intent: 'greeting' }) : null),
+  (t) => (/^(?:suggestions?|suggest karo|kuch suggest karo|suggestions do|kya karna chahiye|ab kya karein|ab kya karun|next kya|what should (?:we|i) do(?: next)?|anything to do|kuch karna hai)$/.test(t) ? A({ intent: 'suggestions' }) : null),
   (t) => (/^(?:dashboard|website|web|login|link|open dashboard|dashboard link|dashboard dikhao|dashboard kholo|डैशबोर्ड)$/.test(t) ? A({ intent: 'dashboard' }) : null),
   (t) => (/^(?:invite|invite link|invite code|add flatmate|flatmate add karo|naya member|naya flatmate|invite flatmate)$/.test(t) ? A({ intent: 'invite' }) : null),
 
@@ -134,8 +154,9 @@ export const RULES: Rule[] = [
     return null;
   },
   (t) => {
-    const sp = extractSplit(t);
-    const base = sp ? sp.rest : t;
+    const sh = extractShares(t);
+    const sp = sh ? null : extractSplit(t);
+    const base = sh ? sh.rest : sp ? sp.rest : t;
     for (const r of PURCHASE) {
       const m = r.exec(base); if (!m) continue;
       const g = m.groups ?? {};
@@ -143,7 +164,7 @@ export const RULES: Rule[] = [
       const amount = amtStr ? parseAmount(amtStr) : null;
       if (!amount) continue;
       const items = g.what ? splitItems(g.what.replace(/\b(?:liya|laya|kharida)\b/g, '').trim()) : [];
-      return A({ intent: 'record_purchase', payer: who(g.who), amount, items, split: 'equal', ...(sp ? { split_members: sp.names } : {}) });
+      return A({ intent: 'record_purchase', payer: who(g.who), amount, items, split: 'equal', ...(sp ? { split_members: sp.names } : {}), ...(sh ? (sh.kind === 'amounts' ? { split_amounts: sh.map } : { split_percents: sh.map }) : {}) });
     }
     return null;
   },
@@ -169,7 +190,7 @@ export const RULES: Rule[] = [
     const m = t.match(re(String.raw`^(?:please |pls )?add (?<items>.+?)(?: to (?:the |our )?(?:shopping |grocery )?list)?$`)) ?? t.match(re(String.raw`^(?:we |i )?need (?<items>.+)$`)) ?? t.match(re(String.raw`^(?<items>.+?)\s+(?:(?:ko )?(?:shopping |grocery )?list (?:mein|me|main) )?${ADD_TAIL}$`));
     if (!m?.groups) return null;
     const items = splitItems(m.groups.items);
-    if (items.some(i => /\b(?:ke liye|ne|ka|ke|ki)\b/.test(i) || i.split(' ').length > 3)) return null; // free-form sentence: leave it to the model
+    if (items.some(i => /\b(?:ke liye|ne|ka|ke|ki|kya|kaun|kitna|kab)\b/.test(i) || i.split(' ').length > 3)) return null; // free-form sentence or question: leave it to the model
     return items.length ? A({ intent: 'add_items', items }) : null;
   },
   (t) => {

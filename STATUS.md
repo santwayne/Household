@@ -1,6 +1,6 @@
 # STATUS: kya bana, kya nahi (teeno PDF ke hisaab se)
 
-Last verified: 56 automated tests pass; dashboard real browser (Chromium) mein chala kar dekha; chat flow signed webhooks se end-to-end chala.
+Last verified: 71 automated tests pass; dashboard real browser (Chromium) mein chala kar dekha; chat flow signed webhooks se end-to-end chala.
 
 **Status ke matlab**
 - **Ho gaya**: code poora, tests mein verify.
@@ -10,6 +10,11 @@ Last verified: 56 automated tests pass; dashboard real browser (Chromium) mein c
 **Kabhi live nahi chala:** asli WhatsApp number, asli Claude/OpenAI API, asli voice-note transcription. Inke adapters ko local fake servers ke saath test kiya hai (`server/test/adapters.test.ts`): request ka shape, headers, retry, parsing sahi hai. Isse ye *pata nahi chalta* ki asli service kaise behave karti hai.
 
 ## Ho gaya
+- **Recipes (second batch):** 64 recipes (pehle 31; maine pehle 32 likha tha, wo galat tha), 8 regions (Rajasthani naya), 29 substitutes. **Allergens aur diet ab ingredient list se khud nikalte hain** (paneer hai to dairy, anda hai to egg, mustard seeds/oil to mustard...), isliye koi recipe galti se allergy-safe nahi ban sakti. 34 purani recipes ke tags is se sudhre.
+- **Har meal ke servings:** dashboard mein har meal ke liye kitne log (guest aaya, koi bahar): sirf us meal ka cost aur shopping items badalte hain.
+- **Custom/percent split:** chat ("Aman ne 900 ka saman liya Aman 500 Raj 400" ya "Aman 70% Raj 30%") aur dashboard dono mein; total na mile to kuch save nahi hota aur saaf wajah batati hai.
+- **Proactive suggestions ("ab kya karein"):** plan nahi hai, plan draft hai, budget speed se aage, expiring saman (idea ke saath), kisi ko paise dene hain, late tasks, unassigned shopping, Sunday reset. Sirf household ke apne data se, AI nahi. Chat aur Home card.
+- **Terminal chat simulator:** `npm run chat`: WhatsApp ke bina asli pipeline try karo.
 - 5 kaam: groceries, budget+expenses, weekly plan, healthy eating, food reminders (chat + dashboard).
 - Budget-fit planner (cost code se), price book jo seekhta hai, protein per rupee.
 - **Schedule (shifts/classes):** har member apne "busy" meals mark karta hai (dashboard). Jis meal par koi free nahi, wahan 20 min tak ki quick recipe aur cook unassigned. Free members mein cook assign hota hai.
@@ -31,13 +36,13 @@ Last verified: 56 automated tests pass; dashboard real browser (Chromium) mein c
 | WhatsApp live | Business account + number, webhook jodna, templates `food_reminder` / `weekly_recap` / `budget_alert` Meta mein approve karwana |
 | Claude/OpenAI parsing | API key lagao, `npm run eval` chalao (model path abhi measure nahi hua) |
 | Voice notes | `OPENAI_API_KEY`, asli voice notes se test |
-| Recipes (32) aur protein values | Nutrition expert review (`recipes.reviewed=false`, UI par disclaimer); prices bhi verify |
+| Recipes (64) aur protein values | Nutrition expert review (`recipes.reviewed=false`, UI par disclaimer); prices bhi verify |
 | Hindi/Punjabi replies | Maine likhe hain; fluent speakers se review |
 | Privacy notice | Lawyer review (DPDP Act; EU/UK users ho to GDPR); contact email `PRIVACY_CONTACT` set karo |
 | 200+ message eval | Hamare likhe synthetic messages hain; asli users ke messages jama karke badlo |
 
 ## Eval ka sach (`eval/report.json`)
-- 226 synthetic messages. Jo "model ke liye nahi" flagged hain wo sab rules se sahi parse hote hain (test se enforce). Rules ne 201 handle kiye, sab 201 sahi (precision 100%); 25 messages model ke liye (number words, lambe sentences) hain.
+- 237 synthetic messages. Jo "model ke liye nahi" flagged hain wo sab rules se sahi parse hote hain (test se enforce). Rules ne 217 handle kiye, sab 217 sahi (precision 100%); 20 messages model ke liye (number words, lambe sentences) hain.
 - Model path measure nahi hua, isliye "90% target met" abhi pakka nahi.
 
 ## Database-level isolation (RLS)

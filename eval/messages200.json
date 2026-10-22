@@ -2418,6 +2418,128 @@
  },
  {
   "id": 207,
+  "text": "suggestions",
+  "lang": "hinglish",
+  "kind": "suggestions",
+  "needs_llm": false,
+  "expected": {
+   "intent": "suggestions"
+  }
+ },
+ {
+  "id": 208,
+  "text": "kya karna chahiye",
+  "lang": "hinglish",
+  "kind": "suggestions",
+  "needs_llm": false,
+  "expected": {
+   "intent": "suggestions"
+  }
+ },
+ {
+  "id": 209,
+  "text": "what should we do next",
+  "lang": "hinglish",
+  "kind": "suggestions",
+  "needs_llm": false,
+  "expected": {
+   "intent": "suggestions"
+  }
+ },
+ {
+  "id": 210,
+  "text": "ab kya karein",
+  "lang": "hinglish",
+  "kind": "suggestions",
+  "needs_llm": false,
+  "expected": {
+   "intent": "suggestions"
+  }
+ },
+ {
+  "id": 211,
+  "text": "next kya",
+  "lang": "hinglish",
+  "kind": "suggestions",
+  "needs_llm": false,
+  "expected": {
+   "intent": "suggestions"
+  }
+ },
+ {
+  "id": 212,
+  "text": "Aman ne 900 ka saman liya Aman 500 Raj 400",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 900,
+   "payer": "aman"
+  }
+ },
+ {
+  "id": 213,
+  "text": "Priya paid 600 for groceries Priya 200 Neha 400",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 600,
+   "payer": "priya"
+  }
+ },
+ {
+  "id": 214,
+  "text": "Raj ne 1200 ki sabzi li Raj 700, Aman 500",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 1200,
+   "payer": "raj"
+  }
+ },
+ {
+  "id": 215,
+  "text": "Aman ne 1000 ka saman liya Aman 70% Raj 30%",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 1000,
+   "payer": "aman"
+  }
+ },
+ {
+  "id": 216,
+  "text": "Neha paid 800 for rice Neha 50% Rahul 50%",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 800,
+   "payer": "neha"
+  }
+ },
+ {
+  "id": 217,
+  "text": "Karan ne 450 ka doodh liya Karan 60% Simran 40%",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 450,
+   "payer": "karan"
+  }
+ },
+ {
+  "id": 218,
   "text": "raj ne kal sabzi mandi se uthayi thi chaar sau ki",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2429,7 +2551,7 @@
   }
  },
  {
-  "id": 208,
+  "id": 219,
   "text": "aman ne aaj chhe sau pachaas ka saman le aaya",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2441,7 +2563,7 @@
   }
  },
  {
-  "id": 209,
+  "id": 220,
   "text": "bhai maine abhi dukaan se doodh aur dahi liya sau pachas mein",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2453,7 +2575,7 @@
   }
  },
  {
-  "id": 210,
+  "id": 221,
   "text": "priya ne hazaar rupaye kitty mein rakhe",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2465,7 +2587,7 @@
   }
  },
  {
-  "id": 211,
+  "id": 222,
   "text": "kal ke liye thoda sa aloo aur tamatar mangwana hai",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2479,7 +2601,7 @@
   }
  },
  {
-  "id": 212,
+  "id": 223,
   "text": "ghar mein namak khatam hai aur cheeni bhi",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2493,7 +2615,7 @@
   }
  },
  {
-  "id": 213,
+  "id": 224,
   "text": "is mahine ab tak kitne paise gaye khane pe",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2503,7 +2625,7 @@
   }
  },
  {
-  "id": 214,
+  "id": 225,
   "text": "aman ko mujhe kitne dene hain pichle hisaab ke",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2513,7 +2635,7 @@
   }
  },
  {
-  "id": 215,
+  "id": 226,
   "text": "can you make a veg plan for the week, we are 3 and have about 2000",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2526,7 +2648,7 @@
   }
  },
  {
-  "id": 216,
+  "id": 227,
   "text": "thursday wala dinner pasand nahi aaya kuch aur karo",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2538,7 +2660,7 @@
   }
  },
  {
-  "id": 217,
+  "id": 228,
   "text": "kal subah jaldi uthna hai isliye raat ko dal bhigo dena yaad dila dena",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2548,7 +2670,7 @@
   }
  },
  {
-  "id": 218,
+  "id": 229,
   "text": "aaj lunch mein maine bas maggi khayi",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2558,7 +2680,7 @@
   }
  },
  {
-  "id": 219,
+  "id": 230,
   "text": "mera pichla entry galat tha usko hata do",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2568,7 +2690,7 @@
   }
  },
  {
-  "id": 220,
+  "id": 231,
   "text": "raj ne mujhe do sau diye wapas",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2580,7 +2702,7 @@
   }
  },
  {
-  "id": 221,
+  "id": 232,
   "text": "udhaar chukta karna hai simran ko 500",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2592,7 +2714,7 @@
   }
  },
  {
-  "id": 222,
+  "id": 233,
   "text": "bhai ye dashboard ka link bhej na",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2602,7 +2724,7 @@
   }
  },
  {
-  "id": 223,
+  "id": 234,
   "text": "ਮੈਂ 300 ਦੀ ਸਬਜ਼ੀ ਲਈ",
   "lang": "pa",
   "kind": "free_form",
@@ -2614,7 +2736,7 @@
   }
  },
  {
-  "id": 224,
+  "id": 235,
   "text": "ਦੁੱਧ ਤੇ ਪਨੀਰ ਲਿਸਟ ਵਿੱਚ ਪਾ ਦਿਓ",
   "lang": "pa",
   "kind": "free_form",
@@ -2628,7 +2750,7 @@
   }
  },
  {
-  "id": 225,
+  "id": 236,
   "text": "अमन ने सब्ज़ी के पाँच सौ दिए",
   "lang": "hi",
   "kind": "free_form",
@@ -2640,7 +2762,7 @@
   }
  },
  {
-  "id": 226,
+  "id": 237,
   "text": "hey, what can we cook that is cheap with protein tonight?",
   "lang": "hinglish",
   "kind": "free_form",

@@ -112,11 +112,10 @@ export async function moneySummary(db: Db, householdId: string): Promise<MoneySu
   const members = await listMembers(db, householdId);
   const name = new Map(members.map(m => [m.id, m.name]));
   name.set(KITTY, 'Kitty (pooled cash)');
-  const [contribs, purchases, sett] = await Promise.all([
-    q<{ member_id: string; amount: number }>(db, 'select member_id, amount from contributions where household_id=$1 and voided_at is null', [householdId]),
-    q<{ id: string; payer_id: string; amount: number; paid_from: string }>(db, 'select id, payer_id, amount, paid_from from purchases where household_id=$1 and voided_at is null', [householdId]),
-    q<{ from_member: string; to_member: string; amount: number }>(db, 'select from_member, to_member, amount from settlements where household_id=$1 and voided_at is null', [householdId]),
-  ]);
+  // one after another: a transaction client runs a single query at a time
+  const contribs = await q<{ member_id: string; amount: number }>(db, 'select member_id, amount from contributions where household_id=$1 and voided_at is null', [householdId]);
+  const purchases = await q<{ id: string; payer_id: string; amount: number; paid_from: string }>(db, 'select id, payer_id, amount, paid_from from purchases where household_id=$1 and voided_at is null', [householdId]);
+  const sett = await q<{ from_member: string; to_member: string; amount: number }>(db, 'select from_member, to_member, amount from settlements where household_id=$1 and voided_at is null', [householdId]);
   const shareRows = await q<{ purchase_id: string; member_id: string; amount: number }>(db,
     'select s.purchase_id, s.member_id, s.amount from purchase_shares s join purchases p on p.id=s.purchase_id where p.household_id=$1 and p.voided_at is null', [householdId]);
   const shareMap = new Map<string, Record<string, number>>();

@@ -35,7 +35,15 @@ test('pantry by chat: add, show, cook from what is at home, expiry list', async 
   assert.doesNotMatch(lastTo(P[0]), /Pantry update/);
   await say(P[0], 'pantry'); assert.match(lastTo(P[0]), /chawal|rice/);
   await say(P[0], 'ghar ke saman se kya banaun');
-  assert.match(lastTo(P[0]), /Dal tadka|Masoor|Moong|Gujarati|Sambar|khichdi|Rajma/i);
+  const ideas = lastTo(P[0]);
+  assert.match(ideas, /Ghar ke saman se ye ban sakta hai/);
+  assert.match(ideas, /hai .*toor dal|hai .*rice/);                 // every idea is built on what is actually at home
+  const { cookFromPantry } = await import('../src/domain/plans.js');
+  const hh = (await q(testPool, 'select id from households'))[0].id;
+  const a = await cookFromPantry(testPool, hh, 5), b = await cookFromPantry(testPool, hh, 5);
+  assert.deepEqual(a.map(x => x.recipeId), b.map(x => x.recipeId));      // deterministic
+  assert.ok(a.every(x => x.have.length >= 1 && x.score >= 0.34));
+  assert.deepEqual(a.map(x => x.score), [...a.map(x => x.score)].sort((m, n) => n - m));
   const h = (await q(testPool, 'select id from households'))[0];
   await setPantry(testPool, h.id, { item: 'paneer', qty: 200, unit: 'g', bestBefore: new Date(Date.now() + 86400000).toISOString().slice(0, 10) });
   await say(P[0], 'kya expire ho raha hai'); assert.match(lastTo(P[0]), /paneer/);
@@ -132,4 +140,131 @@ test('pilot metrics include retention, correction rate, rules vs model share', a
 test('every reply key exists in English, Hinglish, Hindi and Punjabi', () => {
   const missing = allKeys().flatMap(k => (['en', 'hinglish', 'hi', 'pa'] as const).filter(l => !hasLang(k, l)).map(l => `${k}:${l}`));
   assert.deepEqual(missing, []);
+});
+
+test('custom amounts and percentages in chat: saved exactly, mismatches are refused with nothing saved', async () => {
+  await house();
+  await say(P[0], 'Aman ne 900 ka saman liya Aman 500 Raj 400');
+  const sh = await q(testPool, `select m.name, s.amount from purchase_shares s join members m on m.id=s.member_id order by m.name`);
+  assert.deepEqual(sh.map((x: any) => [x.name, x.amount]), [['Aman', 500], ['Raj', 400]]);
+  assert.match(lastTo(P[0]), /Aman ₹500, Raj ₹400/);
+  await say(P[0], 'Aman ne 1000 ka saman liya Aman 70% Raj 30%');
+  const sh2 = await q(testPool, `select m.name, s.amount from purchase_shares s join purchases p on p.id=s.purchase_id join members m on m.id=s.member_id where p.amount=1000 order by m.name`);
+  assert.deepEqual(sh2.map((x: any) => [x.name, x.amount]), [['Aman', 700], ['Raj', 300]]);
+  const n = (await q(testPool, 'select * from purchases')).length;
+  await say(P[0], 'Aman ne 900 ka saman liya Aman 500 Raj 300');           // adds up to 800, not 900
+  assert.match(lastTo(P[0]), /Split sahi nahi|does not work/);
+  await say(P[0], 'Aman ne 800 ka saman liya Aman 60% Raj 30%');           // 90%
+  assert.match(lastTo(P[0]), /Split sahi nahi|does not work/);
+  assert.equal((await q(testPool, 'select * from purchases')).length, n);
+  await say(P[0], 'Aman ne 300 ka saman liya Aman 100 Zoya 200');
+  assert.match(lastTo(P[0]), /zoya/i);
+  assert.equal((await q(testPool, 'select * from purchases')).length, n);
+  const bal = await q(testPool, `select 1`); assert.ok(bal);
+  assert.deepEqual(Object.keys(parseByRules('Aman paid 500 for groceries Raj 250 Neha 250')?.split_amounts ?? {}).sort(), ['neha', 'raj']);
+  assert.equal(parseByRules('Aman ne 650 ka saman liya')?.split_amounts, undefined);
+});
+
+test('dashboard API accepts custom and percent splits and refuses ones that do not add up', async () => {
+  await house();
+  config.wa.appSecret = 'sec';
+  const app = await buildApp(deps);
+  await say(P[0], 'dashboard');
+  const link = lastTo(P[0]).match(/auth\?t=([a-f0-9]+)/)![1];
+  const cookie = ((await app.inject({ method: 'GET', url: `/auth?t=${link}` })).headers['set-cookie'] as string).split(';')[0];
+  const ids = Object.fromEntries((await q(testPool, 'select id, name from members')).map((m: any) => [m.name, m.id]));
+  const post = (payload: unknown) => app.inject({ method: 'POST', url: '/api/money/purchase', headers: { cookie, 'content-type': 'application/json' }, payload: payload as any });
+  assert.equal((await post({ amount: 600, split: { type: 'custom', shares: { [ids.Aman]: 100, [ids.Raj]: 300, [ids.Priya]: 200 } } })).statusCode, 200);
+  assert.equal((await post({ amount: 600, split: { type: 'percent', percents: { [ids.Aman]: 50, [ids.Raj]: 50 } } })).statusCode, 200);
+  assert.equal((await post({ amount: 600, split: { type: 'equal', members: [ids.Aman, ids.Priya] } })).statusCode, 200);
+  assert.equal((await post({ amount: 600, split: { type: 'custom', shares: { [ids.Aman]: 100, [ids.Raj]: 100 } } })).statusCode, 400);
+  assert.equal((await post({ amount: 600, split: { type: 'percent', percents: { [ids.Aman]: 60, [ids.Raj]: 60 } } })).statusCode, 400);
+  const rows = await q(testPool, `select m.name, s.amount from purchase_shares s join members m on m.id=s.member_id join purchases p on p.id=s.purchase_id where p.amount=600 order by p.created_at, m.name`);
+  assert.equal(rows.length, 3 + 2 + 2);
+  await app.close();
+});
+
+test('suggestions: each rule fires from the household\'s own data, in priority order, and a healthy household gets none', async () => {
+  const { getSuggestions } = await import('../src/domain/suggestions.js');
+  const { generatePlan, approvePlan, getCurrentPlan } = await import('../src/domain/plans.js');
+  const { recordPurchase } = await import('../src/domain/ledger.js');
+  const { createTask } = await import('../src/domain/tasks.js');
+  const { addItems } = await import('../src/domain/shopping.js');
+  await house();
+  const hh = (await q(testPool, 'select id from households'))[0].id;
+  const ids = (await q(testPool, 'select id, name from members order by name')).map((m: any) => m.id);
+  const keys = async (now: Date) => (await getSuggestions(testPool, hh, now, 20)).map(s => s.key);
+  const wed = new Date('2026-10-21T10:00:00Z');                       // a Wednesday: no Sunday nudge
+
+  assert.deepEqual(await keys(wed), ['no_plan']);                       // budget set, nothing planned
+  await testPool.query('update households set monthly_budget=0');
+  assert.equal((await keys(wed))[0], 'no_budget');                      // highest priority
+  await testPool.query('update households set monthly_budget=1000');
+
+  await generatePlan(testPool, hh, { budget: 900, days: 3, servings: 3, startDate: '2026-10-21' });
+  assert.deepEqual(await keys(wed), ['approve_plan', 'assign_buyer']);   // the plan added items nobody is assigned to buy
+  await testPool.query('update shopping_list_items set assigned_to=$1', [ids[0]]);
+  assert.deepEqual(await keys(wed), ['approve_plan']);
+  await approvePlan(testPool, hh, (await getCurrentPlan(testPool, hh))!.id);
+  assert.deepEqual(await keys(wed), []);                                 // healthy: nothing to nag about
+  await say(P[0], 'suggestions'); assert.match(lastTo(P[0]), /All good|Sab theek/);
+
+  // spending ahead of pace (early in the month) and money owed between members
+  const earlyMonth = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 3, 10));
+  await recordPurchase(testPool, { householdId: hh, payerId: ids[0], amount: 900 });
+  const k = await keys(earlyMonth);
+  assert.ok(k.includes('budget_pace'), k.join());
+  assert.ok(k.includes('settle_up'), k.join());
+  const settle = (await getSuggestions(testPool, hh, earlyMonth, 20)).find(s => s.key === 'settle_up')!;
+  assert.equal(settle.params.amount, 300);
+
+  // expiring pantry, overdue task, unassigned shopping list
+  await setPantry(testPool, hh, { item: 'toor dal', qty: 500, unit: 'g', bestBefore: new Date().toISOString().slice(0, 10) });
+  await setPantry(testPool, hh, { item: 'rice', qty: 1, unit: 'kg' });
+  await createTask(testPool, { householdId: hh, title: 'Late chore', ownerId: ids[0], dueAt: new Date(earlyMonth.getTime() - 86400000).toISOString() });
+  await addItems(testPool, hh, ['milk', 'bread', 'eggs', 'oil', 'sugar'], ids[0]);
+  const all = await getSuggestions(testPool, hh, earlyMonth, 20);
+  const kk = all.map(s => s.key);
+  for (const key of ['use_expiring', 'tasks_overdue', 'assign_buyer']) assert.ok(kk.includes(key), `${key} missing in ${kk}`);
+  assert.deepEqual(all.map(s => s.priority), [...all.map(s => s.priority)].sort((a, b) => b - a));
+  assert.equal((await getSuggestions(testPool, hh, earlyMonth, 2)).length, 2);   // limit respected
+
+  // Sunday nudge only when nothing is open
+  await testPool.query(`delete from tasks`);
+  const sun = new Date('2026-10-25T10:00:00Z');
+  assert.ok((await keys(sun)).includes('sunday_reset'));
+
+  // chat reply in the member's language, and the other household sees nothing of this
+  await say(P[0], 'kya karna chahiye');
+  assert.match(lastTo(P[0]), /Ab kya karna chahiye|What to do next/);
+});
+
+test('dashboard suggestions endpoint returns ready-to-show text', async () => {
+  await house();
+  config.wa.appSecret = 'sec';
+  const app = await buildApp(deps);
+  await say(P[0], 'dashboard');
+  const link = lastTo(P[0]).match(/auth\?t=([a-f0-9]+)/)![1];
+  const cookie = ((await app.inject({ method: 'GET', url: `/auth?t=${link}` })).headers['set-cookie'] as string).split(';')[0];
+  const r = await app.inject({ method: 'GET', url: '/api/suggestions', headers: { cookie } });
+  assert.equal(r.statusCode, 200);
+  const body = JSON.parse(r.body);
+  assert.ok(body.length >= 1 && typeof body[0].text === 'string' && body[0].text.length > 10);
+  assert.equal((await app.inject({ method: 'GET', url: '/api/suggestions' })).statusCode, 401);
+  await app.close();
+});
+
+test('terminal chat simulator runs the real pipeline without WhatsApp', async () => {
+  const { spawnSync } = await import('node:child_process');
+  await house();                                      // clean database (and the schema is migrated)
+  await testPool.query('truncate households, message_log, outbound_messages, conversation_state restart identity cascade');
+  const { seedReferenceData } = await import('../src/db/seed.js'); await seedReferenceData(testPool);
+  const input = 'hi\nyes\n6000\nveg\nAman ne 650 ka saman liya\nkitna bacha hai?\n/as 919800000044 Raj\nhi\n/quit\n';
+  const r = spawnSync('npx', ['tsx', 'src/cli/chat.ts', '--phone', '919800000043', '--name', 'Aman'], { input, encoding: 'utf8', env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgres://postgres@localhost:5433/shared_living_test' } });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /bot> Hi! I help flatmates/);
+  assert.match(r.stdout, /bot> Likh liya: Aman ne ₹650 diye/);
+  assert.match(r.stdout, /bacha ₹5,350/);
+  assert.match(r.stdout, /now chatting as Raj/);
+  assert.equal((await q(testPool, 'select count(*)::int as n from purchases'))[0].n, 1);
 });

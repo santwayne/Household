@@ -8,16 +8,27 @@ export function Money({ me }: { me: any }) {
   const act = useAction();
   const [amount, setAmount] = useState(''); const [payer, setPayer] = useState(''); const [note, setNote] = useState('');
   const [paidFrom, setPaidFrom] = useState('member'); const [kind, setKind] = useState('purchase'); const [budget, setBudget] = useState('');
+  const [splitMode, setSplitMode] = useState<'equal' | 'subset' | 'custom' | 'percent'>('equal');
+  const [picked, setPicked] = useState<Record<string, boolean>>({});
+  const [vals, setVals] = useState<Record<string, string>>({});
   if (error) return <p className="error">{error}</p>;
   if (!data) return <p className="muted">Loading…</p>;
   const s = data.summary;
 
+  const members: any[] = data.members;
+  const numbers = (m: Record<string, string>) => Object.fromEntries(members.filter(x => Number(m[x.id]) > 0).map(x => [x.id, Number(m[x.id])]));
+  const sumVals = Object.values(numbers(vals)).reduce((p: number, v) => p + (v as number), 0);
+  const splitBody = () => splitMode === 'subset' ? { type: 'equal', members: members.filter(x => picked[x.id]).map(x => x.id) }
+    : splitMode === 'custom' ? { type: 'custom', shares: numbers(vals) } : splitMode === 'percent' ? { type: 'percent', percents: numbers(vals) } : undefined;
+  const splitOk = splitMode === 'equal' || (splitMode === 'subset' && members.some(x => picked[x.id]))
+    || (splitMode === 'custom' && Math.abs(sumVals - Number(amount)) < 0.005 && sumVals > 0) || (splitMode === 'percent' && Math.abs(sumVals - 100) < 0.005);
+
   const submit = async () => {
     const a = Number(amount); if (!(a > 0)) return;
     const ok = await act.run(() => kind === 'purchase'
-      ? api.post('/api/money/purchase', { amount: a, payerId: payer || undefined, note: note || undefined, paidFrom })
+      ? api.post('/api/money/purchase', { amount: a, payerId: payer || undefined, note: note || undefined, paidFrom, split: splitBody() })
       : api.post('/api/money/contribution', { amount: a, memberId: payer || undefined, note: note || undefined }));
-    if (ok) { setAmount(''); setNote(''); reload(); }
+    if (ok) { setAmount(''); setNote(''); setVals({}); setPicked({}); setSplitMode('equal'); reload(); }
   };
   return (
     <>
@@ -45,13 +56,27 @@ export function Money({ me }: { me: any }) {
       <section className="card">
         <h2>Add an entry</h2>
         <div className="grid2">
-          <label>Type<select value={kind} onChange={e => setKind(e.target.value)}><option value="purchase">Purchase (split equally)</option><option value="contribution">Contribution to kitty</option></select></label>
+          <label>Type<select value={kind} onChange={e => setKind(e.target.value)}><option value="purchase">Purchase</option><option value="contribution">Contribution to kitty</option></select></label>
           <label>Amount ({cur})<input inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} /></label>
           <label>{kind === 'purchase' ? 'Paid by' : 'Put in by'}<select value={payer} onChange={e => setPayer(e.target.value)}><option value="">Me</option>{data.members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
           {kind === 'purchase' ? <label>Paid from<select value={paidFrom} onChange={e => setPaidFrom(e.target.value)}><option value="member">Own pocket</option><option value="pool">Kitty</option></select></label> : <span />}
         </div>
+        {kind === 'purchase' && (
+          <div style={{ marginTop: 10 }}>
+            <label>Split<select value={splitMode} onChange={e => { setSplitMode(e.target.value as any); setVals({}); }}>
+              <option value="equal">Equally between everyone</option><option value="subset">Equally between some people</option>
+              <option value="custom">Custom amounts</option><option value="percent">Percentages</option></select></label>
+            {splitMode === 'subset' && <div className="row" style={{ marginTop: 8 }}>{members.map(m => <label key={m.id} style={{ display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" style={{ width: 'auto', minHeight: 0 }} checked={!!picked[m.id]} onChange={e => setPicked({ ...picked, [m.id]: e.target.checked })} />{m.name}</label>)}</div>}
+            {(splitMode === 'custom' || splitMode === 'percent') && (
+              <div style={{ marginTop: 8 }}>
+                <div className="grid2">{members.map(m => <label key={m.id}>{m.name} {splitMode === 'percent' ? '(%)' : `(${cur})`}<input inputMode="decimal" aria-label={`${m.name} share`} value={vals[m.id] ?? ''} onChange={e => setVals({ ...vals, [m.id]: e.target.value })} /></label>)}</div>
+                <p className={'small ' + (splitOk ? 'pos' : 'muted')}>{splitMode === 'percent' ? `Total ${sumVals}% of 100%` : `Total ${fmt(cur, sumVals)} of ${fmt(cur, Number(amount) || 0)}`}{splitOk ? ' ✓' : ' (must match)'}</p>
+              </div>
+            )}
+          </div>
+        )}
         <label style={{ marginTop: 10 }}>Note<input value={note} onChange={e => setNote(e.target.value)} placeholder="sabzi mandi" /></label>
-        <div className="row" style={{ marginTop: 10 }}><button className="primary" disabled={act.busy || !(Number(amount) > 0)} onClick={submit}>Save</button></div>
+        <div className="row" style={{ marginTop: 10 }}><button className="primary" disabled={act.busy || !(Number(amount) > 0) || (kind === 'purchase' && !splitOk)} onClick={submit}>Save</button></div>
         {act.error && <p className="error">{act.error}</p>}
       </section>
 

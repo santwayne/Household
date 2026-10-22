@@ -80,6 +80,10 @@ for (const [t, i] of [['stop', 'stop'], ['STOP', 'stop'], ['start', 'start'], ['
 [['ghar mein 2 kg chawal hai', 'set_pantry'], ['pantry mein 500 g paneer hai', 'set_pantry'], ['we have 1 kg atta', 'set_pantry'], ['pantry', 'show_pantry'], ['show pantry', 'show_pantry'], ['kya expire ho raha hai', 'expiring'], ["what's expiring", 'expiring'], ['ghar ke saman se kya banaun', 'cook_from_pantry'], ['what can i cook from the pantry', 'cook_from_pantry'], ['pantry se kya bana sakte hain', 'cook_from_pantry']].forEach(([t, i]) => add(t, 'hinglish', 'pantry', { intent: i }));
 [['Aman ne 600 ka saman liya, sirf Aman aur Raj ke liye', 600, 'aman'], ['Raj ne 90 ka doodh liya Aman aur Priya ke beech', 90, 'raj'], ['Priya paid 500 for groceries, split between Priya and Neha', 500, 'priya'], ['Rahul ne 300 ki sabzi li, sirf Rahul aur Karan mein', 300, 'rahul']].forEach(([t, a, p]) => add(t as string, 'hinglish', 'split', { intent: 'record_purchase', amount: a as number, payer: p as string }));
 
+// suggestions, custom amounts and percentages (second completion pass)
+['suggestions', 'kya karna chahiye', 'what should we do next', 'ab kya karein', 'next kya'].forEach(t => add(t, 'hinglish', 'suggestions', { intent: 'suggestions' }));
+[['Aman ne 900 ka saman liya Aman 500 Raj 400', 900, 'aman'], ['Priya paid 600 for groceries Priya 200 Neha 400', 600, 'priya'], ['Raj ne 1200 ki sabzi li Raj 700, Aman 500', 1200, 'raj'], ['Aman ne 1000 ka saman liya Aman 70% Raj 30%', 1000, 'aman'], ['Neha paid 800 for rice Neha 50% Rahul 50%', 800, 'neha'], ['Karan ne 450 ka doodh liya Karan 60% Simran 40%', 450, 'karan']].forEach(([t, a, p]) => add(t as string, 'hinglish', 'split', { intent: 'record_purchase', amount: a as number, payer: p as string }));
+
 // free-form messages that need the model (number words, narrative, mixed). Expected values are what a human would record.
 const llm: [string, Exp][] = [
   ['raj ne kal sabzi mandi se uthayi thi chaar sau ki', { intent: 'record_purchase', amount: 400, payer: 'raj' }],

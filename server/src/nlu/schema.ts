@@ -5,7 +5,7 @@ export const INTENTS = [
   'budget_remaining', 'show_balances', 'set_budget', 'plan_week', 'show_plan', 'show_today', 'swap_meal', 'log_meal',
   'weekly_balance', 'protein_rank', 'create_reminder', 'list_reminders', 'substitution', 'undo', 'dashboard', 'invite',
   'help', 'greeting', 'stop', 'start', 'delete_data', 'export_data', 'show_tasks', 'complete_task', 'sunday_reset',
-  'cook_from_pantry', 'expiring', 'set_pantry', 'show_pantry',
+  'cook_from_pantry', 'expiring', 'set_pantry', 'show_pantry', 'suggestions',
   'yes', 'no', 'unknown',
 ] as const;
 export type Intent = typeof INTENTS[number];
@@ -31,6 +31,8 @@ export const ActionSchema = z.object({
   store: z.string().max(80).nullish(),
   split: z.enum(['equal']).nullish(),
   split_members: z.array(z.string().max(60)).max(12).nullish(),  // names the purchase is split between (default: everyone)
+  split_amounts: z.record(z.string().max(60), z.number().min(0).max(10_000_000)).nullish(),   // name -> amount, must add up to the total
+  split_percents: z.record(z.string().max(60), z.number().min(0).max(100)).nullish(),       // name -> percent, must add up to 100
   budget: z.number().positive().max(10_000_000).nullish(),
   people: z.number().int().min(1).max(30).nullish(),
   days: z.number().int().min(1).max(31).nullish(),
@@ -57,7 +59,8 @@ export const ACTION_JSON_SCHEMA = {
     confidence: { type: 'number' },
     payer: { type: ['string', 'null'] }, member: { type: ['string', 'null'] }, from: { type: ['string', 'null'] }, to: { type: ['string', 'null'] },
     amount: { type: ['number', 'null'] }, items: { type: ['array', 'null'], items: { type: 'string' } }, store: { type: ['string', 'null'] },
-    split: { type: ['string', 'null'], enum: ['equal', null] }, split_members: { type: ['array', 'null'], items: { type: 'string' } }, budget: { type: ['number', 'null'] }, people: { type: ['integer', 'null'] },
+    split: { type: ['string', 'null'], enum: ['equal', null] }, split_members: { type: ['array', 'null'], items: { type: 'string' } },
+    split_amounts: { type: ['object', 'null'], additionalProperties: { type: 'number' } }, split_percents: { type: ['object', 'null'], additionalProperties: { type: 'number' } }, budget: { type: ['number', 'null'] }, people: { type: ['integer', 'null'] },
     days: { type: ['integer', 'null'] }, diet: { type: ['string', 'null'], enum: ['vegan', 'veg', 'egg', 'nonveg', null] },
     allergens: { type: ['array', 'null'], items: { type: 'string' } }, text: { type: ['string', 'null'] },
     when: { type: ['object', 'null'], properties: { day: { type: ['string', 'null'], enum: ['today', 'tomorrow', 'day_after', null] }, part: { type: ['string', 'null'], enum: ['morning', 'afternoon', 'evening', 'night', null] }, hour: { type: ['integer', 'null'] }, minute: { type: ['integer', 'null'] } } },

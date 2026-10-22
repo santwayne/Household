@@ -5,6 +5,7 @@ export function Home({ me, go }: { me: any; go: (t: any) => void }) {
   const { data, error, reload } = useApi<any>('/api/home');
   const act = useAction();
   const ideas = useApi<any>('/api/pantry/ideas');
+  const sugg = useApi<{ key: string; text: string }[]>('/api/suggestions');
   if (error) return <p className="error">{error}</p>;
   if (!data) return <p className="muted">Loading…</p>;
   const { money: m, household } = data, cur = household.currency;
@@ -13,6 +14,13 @@ export function Home({ me, go }: { me: any; go: (t: any) => void }) {
     <>
       <h1>Hi {me.member.name}</h1>
       <p className="muted" style={{ margin: 0 }}>{household.name}</p>
+
+      {sugg.data && sugg.data.length > 0 && (
+        <section className="card">
+          <h2>What to do next</h2>
+          <div className="list">{sugg.data.map(x => <div key={x.key}>{x.text}</div>)}</div>
+        </section>
+      )}
 
       <section className="card">
         <div className="row between"><h2>Food budget this month</h2><button className="ghost" onClick={() => go('money')}>Money →</button></div>

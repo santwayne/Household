@@ -16,11 +16,17 @@ Without WhatsApp credentials the server is in **dry-run** mode. To try the chat 
 
 Point Meta's webhook at `POST /webhook/whatsapp` (verification: `GET` with `WA_VERIFY_TOKEN`).
 
+## Try the bot without WhatsApp
+```bash
+npm run chat -- --phone 919800000001 --name Aman   # type messages; "/as 919800000002 Raj" switches person
+```
+It runs the real message pipeline against your database and prints the replies (no WhatsApp, and no AI unless you set a key).
+
 ## Tests
 ```bash
 createdb shared_living_test
-npm test                 # 63 tests (incl. row-level security): money, planner, schedule, isolation, pipeline, webhook, adapters (against local fakes), pantry, rate limits
-npm run eval             # 226-message evaluation (rules, plus model if a key is set) -> eval/report.json
+npm test                 # 71 tests (incl. row-level security, splits, suggestions, recipe data): money, planner, schedule, isolation, pipeline, webhook, adapters (against local fakes), pantry, rate limits
+npm run eval             # 237-message evaluation (rules, plus model if a key is set) -> eval/report.json
 ```
 `TEST_DATABASE_URL` overrides the test DB (default `postgres://postgres@localhost:5433/shared_living_test`).
 
@@ -31,7 +37,7 @@ npm run eval             # 226-message evaluation (rules, plus model if a key is
 - `server/src/http` REST API (session from a one-time WhatsApp link) and pilot admin metrics.
 - `server/src/jobs` reminders, weekly recap.
 - `web` React dashboard (Home, Weekly plan, Shopping, Money, Food log, Household).
-- `eval` 226-message set and harness.
+- `eval` 237-message set and harness.
 
 ## Design rules (from the Developer Brief)
 The AI proposes a structured action; the backend validates it, does all arithmetic and writes; the bot confirms only what was committed.

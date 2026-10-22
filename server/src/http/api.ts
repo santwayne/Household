@@ -7,7 +7,7 @@ import { consumeToken, endSession, sessionMember, startSession } from './auth.js
 import { audit, createInvite, deleteHousehold, deleteMemberData, exportData, getHousehold, listMembers, updateHousehold, updateMember } from '../domain/households.js';
 import { listRecent, moneySummary, recordContribution, recordPurchase, recordSettlement, voidRecord } from '../domain/ledger.js';
 import { addItems, assignItem, markBought, mergedList, removeItem } from '../domain/shopping.js';
-import { approvePlan, cookFromPantry, generatePlan, getCurrentPlan, markCooked, plannedVsActual, swapMeal } from '../domain/plans.js';
+import { approvePlan, cookFromPantry, generatePlan, getCurrentPlan, markCooked, plannedVsActual, setMealServings, swapMeal } from '../domain/plans.js';
 import { listMyLogs, logMeal, setLogShared, sharedSummary, weeklyBalance } from '../domain/health.js';
 import { completeTask, createTask, listTasks, sundayReset, swapTaskOwner } from '../domain/tasks.js';
 import { expiringSoon, listPantry, removePantry, setPantry } from '../domain/pantry.js';
@@ -18,6 +18,9 @@ import { NotFoundError, ValidationError, ConsentError } from '../domain/scope.js
 import { localDate } from '../nlu/tz.js';
 import { waLink } from '../nlu/execute.js';
 import { pilotMetrics } from './pilot.js';
+import { getSuggestions } from '../domain/suggestions.js';
+import { t as tr, money as fmtMoney } from '../nlu/i18n.js';
+import { asLang } from '../nlu/lang.js';
 import { SUBSTITUTIONS } from '../domain/data.js';
 
 declare module 'fastify' { interface FastifyRequest { auth?: { id: string; household_id: string; name: string; role: string } } }
@@ -107,6 +110,10 @@ export function registerApi(app: FastifyInstance) {
   app.post('/api/meals/:id/swap', authed(async (a, req) => {
     const b = z.object({ recipeId: z.string().optional() }).parse(req.body ?? {});
     return tx(db => swapMeal(db, a.household_id, (req.params as any).id, b.recipeId));
+  }));
+  app.post('/api/meals/:id/servings', authed(async (a, req) => {
+    const b = z.object({ servings: z.number().int().min(1).max(30) }).parse(req.body);
+    return setMealServings(T(), a.household_id, (req.params as any).id, b.servings);
   }));
   app.post('/api/meals/:id/cooked', authed(async (a, req) => {
     const b = z.object({ rating: z.number().int().min(1).max(5).optional() }).parse(req.body ?? {});
@@ -246,6 +253,11 @@ export function registerApi(app: FastifyInstance) {
   // public: where a new household starts (household creation always begins in WhatsApp, with explicit consent)
   app.get('/api/public', async () => ({ startLink: `https://wa.me/${config.wa.businessNumber}?text=${encodeURIComponent('hi')}`, privacyUrl: `${config.publicUrl}/privacy` }));
   app.get('/api/pantry/ideas', authed(async (a) => ({ ideas: await cookFromPantry(T(), a.household_id), expiring: await expiringSoon(T(), a.household_id, 3) })));
+  app.get('/api/suggestions', authed(async (a) => {
+    const h = await getHousehold(T(), a.household_id);
+    const lang = asLang(h.language);
+    return (await getSuggestions(T(), a.household_id)).map(x => ({ key: x.key, text: tr(lang, `sugg_${x.key}`, { ...x.params, ...(typeof x.params.remaining === 'number' ? { remaining: fmtMoney(h.currency, x.params.remaining as number) } : {}), ...(typeof x.params.amount === 'number' ? { amount: fmtMoney(h.currency, x.params.amount as number) } : {}) }).trim() }));
+  }));
   app.get('/api/audit', authed(async (a) => q(T(), `select l.at, l.action, l.entity, l.detail, m.name as actor from audit_log l left join members m on m.id=l.actor_member_id where l.household_id=$1 order by l.at desc limit 50`, [a.household_id])));
   app.get('/healthz', async () => ({ ok: true }));
 }

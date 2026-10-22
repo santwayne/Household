@@ -8,6 +8,7 @@ import { addItems, markBought, mergedList, removeItem } from '../domain/shopping
 import { cookFromPantry, generatePlan, getCurrentPlan, swapMeal } from '../domain/plans.js';
 import { expiringSoon, listPantry, setPantry } from '../domain/pantry.js';
 import { notify, budgetAlertTemplate, budgetAlertUsesTemplates } from '../whatsapp/notify.js';
+import { getSuggestions } from '../domain/suggestions.js';
 import { logMeal, weeklyBalance } from '../domain/health.js';
 import { loadPrices } from '../domain/pricebook.js';
 import { rankProteinPerRupee } from '../domain/protein.js';
@@ -21,6 +22,7 @@ import { resolveMember } from './names.js';
 import type { Action } from './schema.js';
 import { describeWhen, localDate, resolveWhen, weekday } from './tz.js';
 import { canonicalItem, parseItemPhrase } from '../domain/items.js';
+import { MoneyError, type SplitRule } from '../domain/money.js';
 
 export type Ctx = {
   db: PoolClient; h: Household; m: Member; members: Member[]; lang: Lang; msgId: string; now: Date;
@@ -49,21 +51,37 @@ export async function executeAction(c: Ctx, a: Action): Promise<ExecResult> {
 
   switch (a.intent) {
     case 'record_purchase': {
-      let splitIds: string[] | undefined;
-      if (a.split_members?.length) {
-        const unknown: string[] = [], ids: string[] = [];
-        for (const n of a.split_members) { const r = resolveMember(c.members, n, m); if ('member' in r) ids.push(r.member.id); else unknown.push(n); }
-        if (unknown.length) return R(t(lang, 'split_unknown', { names: unknown.join(', '), members: names(c) }));
-        splitIds = [...new Set(ids)];
+      let splitRule: SplitRule | undefined; let splitNote = '';
+      const resolveAll = (nameList: string[]): { ids: Map<string, string> } | { unknown: string[] } => {
+        const unknown: string[] = [], ids = new Map<string, string>();
+        for (const n of nameList) { const r = resolveMember(c.members, n, m); if ('member' in r) ids.set(n, r.member.id); else unknown.push(n); }
+        return unknown.length ? { unknown } : { ids };
+      };
+      const nameOf = (id: string) => c.members.find(x => x.id === id)!.name;
+      if (a.split_amounts && Object.keys(a.split_amounts).length) {
+        const rr = resolveAll(Object.keys(a.split_amounts)); if ('unknown' in rr) return R(t(lang, 'split_unknown', { names: rr.unknown.join(', '), members: names(c) }));
+        const shares: Record<string, number> = {}; for (const [n, v] of Object.entries(a.split_amounts)) shares[rr.ids.get(n)!] = (shares[rr.ids.get(n)!] ?? 0) + v;
+        splitRule = { type: 'custom', shares };
+        splitNote = t(lang, 'purchase_split_note', { who: Object.entries(shares).map(([id, v]) => `${nameOf(id)} ${mny(v)}`).join(', ') });
+      } else if (a.split_percents && Object.keys(a.split_percents).length) {
+        const rr = resolveAll(Object.keys(a.split_percents)); if ('unknown' in rr) return R(t(lang, 'split_unknown', { names: rr.unknown.join(', '), members: names(c) }));
+        const percents: Record<string, number> = {}; for (const [n, v] of Object.entries(a.split_percents)) percents[rr.ids.get(n)!] = (percents[rr.ids.get(n)!] ?? 0) + v;
+        splitRule = { type: 'percent', percents };
+        splitNote = t(lang, 'purchase_split_note', { who: Object.entries(percents).map(([id, v]) => `${nameOf(id)} ${v}%`).join(', ') });
+      } else if (a.split_members?.length) {
+        const rr = resolveAll(a.split_members); if ('unknown' in rr) return R(t(lang, 'split_unknown', { names: rr.unknown.join(', '), members: names(c) }));
+        const ids = [...new Set(rr.ids.values())];
+        splitRule = { type: 'equal', members: ids };
+        splitNote = t(lang, 'purchase_split_note', { who: ids.map(nameOf).join(', ') });
       }
-      const splitNote = splitIds ? t(lang, 'purchase_split_note', { who: c.members.filter(x => splitIds!.includes(x.id)).map(x => x.name).join(', ') }) : '';
       if (c.source === 'llm' && !c.confirmed && (a.needs_confirmation || a.confidence < 0.85)) {
         const w = needWho('payer', a.payer); if (!('id' in w)) return w;
         return { replies: [t(lang, 'purchase_confirm', { payer: w.name, amount: mny(a.amount!), items: itemsSuffix(a.items) + splitNote })], pending: { step: 'confirm', action: a } };
       }
       const payer = needWho('payer', a.payer); if (!('id' in payer)) return payer;
       const before = await moneySummary(db, h.id);
-      const r = await recordPurchase(db, { householdId: h.id, payerId: payer.id, amount: a.amount!, items: (a.items ?? []).map(item => ({ item })), store: a.store ?? undefined, split: splitIds ? { type: 'equal', members: splitIds } : undefined, waMessageId: c.msgId, actor: m.id });
+      const r = await recordPurchase(db, { householdId: h.id, payerId: payer.id, amount: a.amount!, items: (a.items ?? []).map(item => ({ item })), store: a.store ?? undefined, split: splitRule, waMessageId: c.msgId, actor: m.id }).catch((e: unknown) => { if (e instanceof MoneyError) return e; throw e; });
+      if (r instanceof MoneyError) return R(t(lang, 'split_mismatch', { message: r.message }));
       const s = await moneySummary(db, h.id);
       let text = s.remaining == null
         ? t(lang, 'purchase_saved_nobudget', { payer: payer.name, amount: mny(a.amount!), items: itemsSuffix(a.items) + splitNote })
@@ -223,6 +241,11 @@ export async function executeAction(c: Ctx, a: Action): Promise<ExecResult> {
     case 'invite': {
       const code = await createInvite(db, h.id, m.id);
       return R(t(lang, 'invite_created', { code, link: waLink(code) }));
+    }
+    case 'suggestions': {
+      const list = await getSuggestions(db, h.id, c.now);
+      if (!list.length) return R(t(lang, 'sugg_none'));
+      return R([t(lang, 'sugg_header'), ...list.map(x => '• ' + t(lang, `sugg_${x.key}`, { ...x.params, ...(typeof x.params.remaining === 'number' ? { remaining: mny(x.params.remaining as number) } : {}), ...(typeof x.params.amount === 'number' ? { amount: mny(x.params.amount as number) } : {}) }).trim())].join('\n'));
     }
     case 'set_pantry': {
       const done: string[] = [], noQty: string[] = [];

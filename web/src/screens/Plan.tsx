@@ -60,9 +60,12 @@ export function Plan({ me }: { me: any }) {
                   <div key={m.id} className="row between">
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div className={m.cooked_at ? 'done' : ''}><b style={{ textTransform: 'capitalize' }}>{m.slot}</b> · {m.recipe_name} {m.swapped && <span className="pill">swapped</span>}</div>
-                      <div className="muted small">{fmt(cur, m.est_cost)} · {m.protein_g_per_serving} g protein/serving{m.cook_name ? ` · cook: ${m.cook_name}` : ''}</div>
+                      <div className="muted small">{fmt(cur, m.est_cost)} · {m.protein_g_per_serving} g protein/serving · {m.servings} {m.servings === 1 ? 'person' : 'people'}{m.cook_name ? ` · cook: ${m.cook_name}` : ''}</div>
                     </div>
                     <div className="row">
+                      <select aria-label={`People for ${m.recipe_name}`} value={m.servings} disabled={act.busy} style={{ width: 'auto' }} onChange={async e => { await act.run(() => api.post(`/api/meals/${m.id}/servings`, { servings: Number(e.target.value) })); reload(); }}>
+                        {Array.from({ length: Math.max(8, m.servings) }, (_, k) => k + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                      </select>
                       <button disabled={act.busy} onClick={async () => { await act.run(() => api.post(`/api/meals/${m.id}/swap`)); reload(); }}>Swap</button>
                       {!m.cooked_at && <button disabled={act.busy} onClick={async () => { await act.run(() => api.post(`/api/meals/${m.id}/cooked`)); reload(); }}>Cooked</button>}
                     </div>
@@ -71,7 +74,7 @@ export function Plan({ me }: { me: any }) {
               </div>
             </section>
           ))}
-          <p className="muted small">Swapping a meal updates only that meal's shopping items.</p>
+          <p className="muted small">Swapping a meal or changing its number of people updates only that meal's shopping items.</p>
         </>
       )}
     </>
