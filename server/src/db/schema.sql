@@ -317,3 +317,16 @@ alter table households add column if not exists joined_via text not null default
 
 alter table households add column if not exists last_recap_at timestamptz;
 alter table households add column if not exists last_activity_at timestamptz;
+
+-- Completion pass: delivery status, preference signals, pantry alerts
+alter table outbound_messages add column if not exists delivery_status text;       -- sent | delivered | read | failed (from WhatsApp status webhooks)
+alter table pantry_items add column if not exists alerted_at timestamptz;
+create table if not exists meal_feedback (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  recipe_id text not null references recipes(id),
+  signal numeric(4,2) not null,                         -- + liked/cooked, - swapped away / low rating
+  kind text not null,                                   -- rating | swapped_away | cooked
+  at timestamptz not null default now()
+);
+create index if not exists meal_feedback_household_idx on meal_feedback(household_id, recipe_id);

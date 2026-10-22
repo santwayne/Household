@@ -6,10 +6,10 @@ import { consumeToken, endSession, sessionMember, startSession } from './auth.js
 import { audit, createInvite, deleteHousehold, deleteMemberData, exportData, getHousehold, listMembers, updateHousehold, updateMember } from '../domain/households.js';
 import { listRecent, moneySummary, recordContribution, recordPurchase, recordSettlement, voidRecord } from '../domain/ledger.js';
 import { addItems, assignItem, markBought, mergedList, removeItem } from '../domain/shopping.js';
-import { approvePlan, generatePlan, getCurrentPlan, markCooked, plannedVsActual, swapMeal } from '../domain/plans.js';
+import { approvePlan, cookFromPantry, generatePlan, getCurrentPlan, markCooked, plannedVsActual, swapMeal } from '../domain/plans.js';
 import { listMyLogs, logMeal, setLogShared, sharedSummary, weeklyBalance } from '../domain/health.js';
 import { completeTask, createTask, listTasks, sundayReset, swapTaskOwner } from '../domain/tasks.js';
-import { listPantry, removePantry, setPantry } from '../domain/pantry.js';
+import { expiringSoon, listPantry, removePantry, setPantry } from '../domain/pantry.js';
 import { loadPrices, setPrice } from '../domain/pricebook.js';
 import { rankProteinPerRupee } from '../domain/protein.js';
 import { MoneyError } from '../domain/money.js';
@@ -200,7 +200,7 @@ export function registerApi(app: FastifyInstance) {
   // ---- household, members, invites, privacy
   app.get('/api/household', authed(async (a) => {
     const h = await getHousehold(pool, a.household_id);
-    const members = (await listMembers(pool, a.household_id)).map(m => ({ id: m.id, name: m.name, role: m.role, language: m.language, diet: m.diet, allergens: m.allergens, optedOut: !!m.opted_out_at, joined: m.consent_at }));
+    const members = (await listMembers(pool, a.household_id)).map(m => ({ id: m.id, name: m.name, role: m.role, language: m.language, diet: m.diet, allergens: m.allergens, optedOut: !!m.opted_out_at, joined: m.consent_at, busy: m.schedule_prefs?.busy ?? [] }));
     return { household: h, members, me: { id: a.id, role: a.role } };
   }));
   app.patch('/api/household', authed(async (a, req) => {
@@ -210,7 +210,7 @@ export function registerApi(app: FastifyInstance) {
     return updateHousehold(pool, a.household_id, a.id, b);
   }));
   app.patch('/api/members/me', authed(async (a, req) => {
-    const b = z.object({ name: z.string().min(1).max(40), language: z.enum(['en', 'hinglish', 'hi', 'pa']), diet: z.enum(['vegan', 'veg', 'egg', 'nonveg']), allergens: z.array(z.string().max(30)).max(10) }).partial().parse(req.body);
+    const b = z.object({ name: z.string().min(1).max(40), language: z.enum(['en', 'hinglish', 'hi', 'pa']), diet: z.enum(['vegan', 'veg', 'egg', 'nonveg']), allergens: z.array(z.string().max(30)).max(10), schedule_prefs: z.object({ busy: z.array(z.string().max(20)).max(21) }) }).partial().parse(req.body);
     await updateMember(pool, a.household_id, a.id, b); return { ok: true };
   }));
   app.post('/api/invites', authed(async (a) => { const code = await createInvite(pool, a.household_id, a.id); return { code, link: waLink(code) }; }));
@@ -239,5 +239,9 @@ export function registerApi(app: FastifyInstance) {
     await pool.query('insert into pilot_commitments (household_id, kind, price, currency, note) values ($1,$2,$3,$4,$5)', [b.householdId, b.kind, b.price ?? config.plan.pricePointInr, b.currency ?? 'INR', b.note ?? null]);
     return { ok: true };
   }));
+  // public: where a new household starts (household creation always begins in WhatsApp, with explicit consent)
+  app.get('/api/public', async () => ({ startLink: `https://wa.me/${config.wa.businessNumber}?text=${encodeURIComponent('hi')}`, privacyUrl: `${config.publicUrl}/privacy` }));
+  app.get('/api/pantry/ideas', authed(async (a) => ({ ideas: await cookFromPantry(pool, a.household_id), expiring: await expiringSoon(pool, a.household_id, 3) })));
+  app.get('/api/audit', authed(async (a) => q(pool, `select l.at, l.action, l.entity, l.detail, m.name as actor from audit_log l left join members m on m.id=l.actor_member_id where l.household_id=$1 order by l.at desc limit 50`, [a.household_id])));
   app.get('/healthz', async () => ({ ok: true }));
 }

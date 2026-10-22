@@ -7,8 +7,8 @@ export interface WaClient {
 }
 
 export class CloudApiClient implements WaClient {
-  private base = `https://graph.facebook.com/${config.wa.graphVersion}`;
-  private headers = { authorization: `Bearer ${config.wa.accessToken}`, 'content-type': 'application/json' };
+  private get base() { return `${config.wa.graphBase}/${config.wa.graphVersion}`; }
+  private get headers() { return { authorization: `Bearer ${config.wa.accessToken}`, 'content-type': 'application/json' }; }
 
   private async post(body: unknown): Promise<{ id: string }> {
     const res = await fetch(`${this.base}/${config.wa.phoneNumberId}/messages`, { method: 'POST', headers: this.headers, body: JSON.stringify({ messaging_product: 'whatsapp', ...(body as object) }) });

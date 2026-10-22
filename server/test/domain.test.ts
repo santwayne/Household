@@ -151,3 +151,41 @@ test('household settings update', async () => {
   const u = await updateHousehold(db, h.id, a.id, { monthly_budget: 5000, diet: 'egg' });
   assert.equal(u.monthly_budget, 5000); assert.equal(u.diet, 'egg');
 });
+
+test('schedule: when nobody is free to cook, that slot gets a quick recipe and no cook; free members are assigned', async () => {
+  const { updateMember } = await import('../src/domain/households.js');
+  db = await freshDb();
+  const { household: h, members: [a, b] } = await mkHousehold(db, ['Aman', 'Raj'], { diet: 'veg' });
+  const start = '2026-11-02'; // a Monday
+  await updateMember(db, h.id, a.id, { schedule_prefs: { busy: ['mon:dinner', 'tue:lunch'] } });
+  await updateMember(db, h.id, b.id, { schedule_prefs: { busy: ['mon:dinner'] } });
+  await assert.rejects(updateMember(db, h.id, a.id, { schedule_prefs: { busy: ['funday:dinner'] } }));
+  const plan = await generatePlan(db, h.id, { budget: 3000, days: 3, servings: 2, startDate: start });
+  const cur = await getCurrentPlan(db, h.id);
+  const monDinner = cur!.meals.find((m: any) => m.day === '2026-11-02' && m.slot === 'dinner');
+  assert.equal(monDinner.assigned_cook, null);                          // both busy
+  const r = (await q(db, 'select prep_minutes from recipes where id=$1', [monDinner.recipe_id]))[0];
+  assert.ok(r.prep_minutes <= 20, `quick recipe expected, got ${r.prep_minutes} min`);
+  const tueLunch = cur!.meals.find((m: any) => m.day === '2026-11-03' && m.slot === 'lunch');
+  assert.equal(tueLunch.assigned_cook, b.id);                           // only Raj is free
+  assert.ok(plan.fits);
+});
+
+test('preference signals: a recipe swapped away repeatedly stops being chosen; a liked one is preferred', async () => {
+  const { markCooked } = await import('../src/domain/plans.js');
+  db = await freshDb();
+  const { household: h } = await mkHousehold(db, ['Aman', 'Raj'], { diet: 'veg' });
+  const first = await generatePlan(db, h.id, { budget: 3000, days: 2, servings: 2, startDate: '2026-11-02' });
+  const meals = (await getCurrentPlan(db, h.id))!.meals;
+  const disliked = meals[0].recipe_id;
+  for (let i = 0; i < 3; i++) await db.query(`insert into meal_feedback (household_id, recipe_id, signal, kind) values ($1,$2,-1,'swapped_away')`, [h.id, disliked]);
+  const again = await generatePlan(db, h.id, { budget: 3000, days: 2, servings: 2, startDate: '2026-11-02' });
+  assert.ok(!(await getCurrentPlan(db, h.id))!.meals.some((m: any) => m.recipe_id === disliked));
+  // swapping a meal records the signal; a 5-star rating records a positive one
+  const m0 = (await getCurrentPlan(db, h.id))!.meals[0];
+  await swapMeal(db, h.id, m0.id);
+  await markCooked(db, h.id, (await getCurrentPlan(db, h.id))!.meals[1].id, 5);
+  const fb = await q(db, 'select kind, signal from meal_feedback where household_id=$1 order by at', [h.id]);
+  assert.ok(fb.some((f: any) => f.kind === 'swapped_away') && fb.some((f: any) => f.kind === 'rating' && f.signal === 2));
+  assert.ok(first.meals.length === 4 && again.meals.length === 4);
+});

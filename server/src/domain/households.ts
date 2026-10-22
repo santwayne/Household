@@ -10,6 +10,7 @@ export type Household = {
 export type Member = {
   id: string; household_id: string; phone: string; name: string; role: string; language: string | null;
   consent_at: string | null; opted_out_at: string | null; last_inbound_at: string | null; diet: string | null; allergens: string[];
+  schedule_prefs: { busy?: string[] };
 };
 
 export async function audit(db: Db, householdId: string | null, actor: string | null, action: string, entity: string, entityId?: string | null, detail?: unknown) {
@@ -109,11 +110,13 @@ export async function updateHousehold(db: Db, householdId: string, actor: string
   return getHousehold(db, householdId);
 }
 
-export async function updateMember(db: Db, householdId: string, memberId: string, patch: { name?: string; language?: string | null; diet?: string | null; allergens?: string[] }) {
+export const BUSY_KEY = /^(mon|tue|wed|thu|fri|sat|sun):(breakfast|lunch|dinner)$/;
+export async function updateMember(db: Db, householdId: string, memberId: string, patch: { name?: string; language?: string | null; diet?: string | null; allergens?: string[]; schedule_prefs?: { busy: string[] } }) {
   await getMember(db, householdId, memberId);
+  if (patch.schedule_prefs && !patch.schedule_prefs.busy.every(k => BUSY_KEY.test(k))) throw new ValidationError('Busy slots look like "mon:dinner"');
   await db.query(
-    `update members set name=coalesce($3,name), language=coalesce($4,language), diet=coalesce($5,diet), allergens=coalesce($6,allergens) where id=$1 and household_id=$2`,
-    [memberId, householdId, patch.name ?? null, patch.language ?? null, patch.diet ?? null, patch.allergens ?? null]);
+    `update members set name=coalesce($3,name), language=coalesce($4,language), diet=coalesce($5,diet), allergens=coalesce($6,allergens), schedule_prefs=coalesce($7::jsonb,schedule_prefs) where id=$1 and household_id=$2`,
+    [memberId, householdId, patch.name ?? null, patch.language ?? null, patch.diet ?? null, patch.allergens ?? null, patch.schedule_prefs ? JSON.stringify({ busy: [...new Set(patch.schedule_prefs.busy)] }) : null]);
 }
 
 export async function requireConsent(m: Member) {

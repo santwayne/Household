@@ -22,6 +22,14 @@ export function extractMessages(body: any): InboundMsg[] {
   return out;
 }
 
+/** Delivery receipts: sent / delivered / read / failed for messages we sent. */
+export function extractStatuses(body: any): { id: string; status: string; error?: string }[] {
+  const out: { id: string; status: string; error?: string }[] = [];
+  for (const entry of body?.entry ?? []) for (const ch of entry?.changes ?? []) for (const st of ch?.value?.statuses ?? [])
+    if (st?.id && st?.status) out.push({ id: st.id, status: st.status, error: st.errors?.[0]?.title ?? st.errors?.[0]?.message });
+  return out;
+}
+
 export function registerWebhook(app: FastifyInstance, deps: Deps) {
   // GET: Meta's one-time verification handshake
   app.get('/webhook/whatsapp', async (req, reply) => {
@@ -35,6 +43,9 @@ export function registerWebhook(app: FastifyInstance, deps: Deps) {
     const raw = (req as any).rawBody as Buffer | undefined;
     if (!raw || !verifySignature(raw, req.headers['x-hub-signature-256'] as string | undefined, config.wa.appSecret)) return reply.code(401).send('bad signature');
     const now = (deps.now ?? (() => new Date()))().getTime() / 1000;
+    for (const st of extractStatuses(req.body)) {
+      await deps.pool.query('update outbound_messages set delivery_status=$2, error=coalesce($3, error) where wa_message_id=$1', [st.id, st.status, st.error ?? null]);
+    }
     for (const m of extractMessages(req.body)) {
       if (m.timestamp && now - m.timestamp > config.wa.replayToleranceSec) continue; // too old to be a live message: ignore (and would be outside the 24h window anyway)
       await handleInbound(deps, m);

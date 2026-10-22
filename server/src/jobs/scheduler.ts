@@ -1,24 +1,14 @@
 import type { Pool } from 'pg';
 import { q, tx } from '../db/index.js';
 import { config } from '../config.js';
-import { enqueue, processOutbox } from '../whatsapp/outbox.js';
+import { processOutbox } from '../whatsapp/outbox.js';
+import { notify, type Recipient } from '../whatsapp/notify.js';
 import type { WaClient } from '../whatsapp/client.js';
 import { moneySummary } from '../domain/ledger.js';
 import { asLang, type Lang } from '../nlu/lang.js';
 import { money, t } from '../nlu/i18n.js';
 
-const WINDOW_MS = 24 * 3600 * 1000;
-
-type Mem = { id: string; phone: string; language: string | null; consent_at: string | null; opted_out_at: string | null; last_inbound_at: string | null; household_id: string };
-
-/** Inside the 24-hour window: free-form text. Outside: an approved (paid) template, which must exist in Meta Business Manager [verify]. */
-async function notify(db: Pool | any, m: Mem, now: Date, text: string, template: { name: string; params: string[] }) {
-  if (!m.consent_at || m.opted_out_at) return 'skipped';
-  const inWindow = m.last_inbound_at && now.getTime() - new Date(m.last_inbound_at).getTime() <= WINDOW_MS;
-  if (inWindow) await enqueue(db, { phone: m.phone, householdId: m.household_id, payload: { text } });
-  else await enqueue(db, { phone: m.phone, householdId: m.household_id, payload: { template: template.name, lang: 'en', params: template.params } });
-  return inWindow ? 'text' : 'template';
-}
+type Mem = Recipient & { id: string; language: string | null };
 
 export async function runDueReminders(pool: Pool, now = new Date()) {
   let n = 0;
@@ -29,7 +19,7 @@ export async function runDueReminders(pool: Pool, now = new Date()) {
         where r.status='pending' and r.due_at <= $1 order by r.due_at limit 100 for update of r skip locked`, [now]);
     for (const r of due) {
       const lang = asLang(r.language);
-      await notify(db, { id: r.mid, phone: r.phone, language: r.language, consent_at: r.consent_at, opted_out_at: r.opted_out_at, last_inbound_at: r.last_inbound_at, household_id: r.household_id }, now,
+      await notify(db, { phone: r.phone, consent_at: r.consent_at, opted_out_at: r.opted_out_at, last_inbound_at: r.last_inbound_at, household_id: r.household_id }, now,
         t(lang, 'reminder_fire', { text: r.text }), { name: config.wa.templates.reminder, params: [r.text] });
       await db.query(`update reminders set status='sent', sent_at=now() where id=$1`, [r.id]);
       n++;
@@ -66,6 +56,26 @@ export async function runWeeklyRecaps(pool: Pool, now = new Date()) {
   return n;
 }
 
+/** Daily nudge for pantry items close to their best-before date. Free-form text only (inside the 24h window), so it never costs a template. */
+export async function runExpiryAlerts(pool: Pool, now = new Date()) {
+  let n = 0;
+  const rows = await q<any>(pool, `select p.household_id, array_agg(p.item order by p.best_before) as items, array_agg(p.id) as ids
+      from pantry_items p join households h on h.id=p.household_id
+     where p.best_before is not null and p.best_before <= (($1::timestamptz at time zone h.timezone)::date + 1) and p.alerted_at is null and h.deleted_at is null group by p.household_id`, [now]);
+  for (const r of rows) {
+    await tx(async (db) => {
+      const claimed = await db.query('update pantry_items set alerted_at=$2 where id = any($1) and alerted_at is null', [r.ids, now]);
+      if (!claimed.rowCount) return;
+      const members = await q<any>(db, 'select * from members where household_id=$1', [r.household_id]);
+      for (const m of members) {
+        const res = await notify(db, m, now, t(asLang(m.language), 'expiry_alert', { items: r.items.join(', ') }), { name: '', params: [] }, false);
+        if (res !== 'skipped') n++;
+      }
+    });
+  }
+  return n;
+}
+
 export async function cleanup(pool: Pool) {
   await pool.query('delete from conversation_state where expires_at < now()');
   await pool.query(`delete from login_tokens where expires_at < now() - interval '1 day'`);
@@ -76,7 +86,7 @@ export function startScheduler(pool: Pool, wa: WaClient) {
   let busy = false;
   const tick = async () => {
     if (busy) return; busy = true;
-    try { await runDueReminders(pool); await runWeeklyRecaps(pool); await processOutbox(pool, wa); await cleanup(pool); }
+    try { await runDueReminders(pool); await runWeeklyRecaps(pool); await runExpiryAlerts(pool); await processOutbox(pool, wa); await cleanup(pool); }
     catch (e) { console.error('scheduler tick failed', e); }
     finally { busy = false; }
   };

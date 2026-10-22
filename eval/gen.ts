@@ -76,6 +76,10 @@ add('दूध और पनीर add करो', 'hi', 'add_items', { intent: 
 // control
 for (const [t, i] of [['stop', 'stop'], ['STOP', 'stop'], ['start', 'start'], ['help', 'help'], ['undo', 'undo'], ['galti hui', 'undo'], ['dashboard', 'dashboard'], ['invite', 'invite'], ['yes', 'yes'], ['haan', 'yes'], ['no', 'no'], ['nahi', 'no'], ['hi', 'greeting'], ['delete my data', 'delete_data']] as [string, string][]) add(t, 'hinglish', 'control', { intent: i });
 
+// pantry, expiry, custom split (added in the completion pass)
+[['ghar mein 2 kg chawal hai', 'set_pantry'], ['pantry mein 500 g paneer hai', 'set_pantry'], ['we have 1 kg atta', 'set_pantry'], ['pantry', 'show_pantry'], ['show pantry', 'show_pantry'], ['kya expire ho raha hai', 'expiring'], ["what's expiring", 'expiring'], ['ghar ke saman se kya banaun', 'cook_from_pantry'], ['what can i cook from the pantry', 'cook_from_pantry'], ['pantry se kya bana sakte hain', 'cook_from_pantry']].forEach(([t, i]) => add(t, 'hinglish', 'pantry', { intent: i }));
+[['Aman ne 600 ka saman liya, sirf Aman aur Raj ke liye', 600, 'aman'], ['Raj ne 90 ka doodh liya Aman aur Priya ke beech', 90, 'raj'], ['Priya paid 500 for groceries, split between Priya and Neha', 500, 'priya'], ['Rahul ne 300 ki sabzi li, sirf Rahul aur Karan mein', 300, 'rahul']].forEach(([t, a, p]) => add(t as string, 'hinglish', 'split', { intent: 'record_purchase', amount: a as number, payer: p as string }));
+
 // free-form messages that need the model (number words, narrative, mixed). Expected values are what a human would record.
 const llm: [string, Exp][] = [
   ['raj ne kal sabzi mandi se uthayi thi chaar sau ki', { intent: 'record_purchase', amount: 400, payer: 'raj' }],
@@ -102,9 +106,5 @@ const llm: [string, Exp][] = [
 llm.forEach(([t, e]) => add(t, /[਀-੿]/.test(t) ? 'pa' : /[ऀ-ॿ]/.test(t) ? 'hi' : 'hinglish', 'free_form', e, true));
 
 const dir = dirname(fileURLToPath(import.meta.url));
-// trim or pad to exactly 200 by rule-coverable generic variants
-while (out.length > 200) out.pop();
-let k = 0;
-while (out.length < 200) { const a = 100 + 25 * (++k); add(`${names[k % names.length]} ne ${a} ka saman liya`, 'hinglish', 'purchase', { intent: 'record_purchase', amount: a, payer: names[k % names.length].toLowerCase(), items: [] }); }
 writeFileSync(join(dir, 'messages200.json'), JSON.stringify(out, null, 1));
 console.log('wrote', out.length, 'messages');

@@ -6,11 +6,28 @@ import { addMealItems, removeMealItems } from './shopping.js';
 import { moneySummary } from './ledger.js';
 import { NotFoundError, ValidationError } from './scope.js';
 import { passesFilter } from './filters.js';
+import { QUICK_MINUTES } from './planner.js';
+import { weekday } from '../nlu/tz.js';
 
 export const loadRecipes = (db: Db) => q<Recipe>(db, 'select id, name, region, diet_tags, allergens, ingredients, base_servings, protein_g_per_serving, prep_minutes, equipment, slot from recipes');
 
 function strictDiets(h: { diet: string }, members: { diet: string | null }[]) { return [h.diet, ...members.map(m => m.diet).filter(Boolean) as string[]]; }
 function allAllergens(h: { allergens: string[] }, members: { allergens: string[] }[]) { return [...new Set([...h.allergens, ...members.flatMap(m => m.allergens)])]; }
+
+const DAY3 = (iso: string) => weekday(iso).slice(0, 3);
+const addDaysIso = (date: string, n: number) => { const d = new Date(date + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+/** Members who are free to cook at a given day and slot, from each member's schedule_prefs.busy ("mon:dinner"). */
+export function availableCooks<T extends { opted_out_at: string | null; schedule_prefs?: { busy?: string[] } }>(members: T[], isoDate: string, slot: string): T[] {
+  const key = `${DAY3(isoDate)}:${slot}`;
+  return members.filter(m => !m.opted_out_at && !(m.schedule_prefs?.busy ?? []).includes(key));
+}
+
+/** Learned preferences: ratings, cooked and swapped-away signals add up per recipe. */
+export async function loadPrefs(db: Db, householdId: string): Promise<Record<string, number>> {
+  const rows = await q<{ recipe_id: string; s: number }>(db, 'select recipe_id, sum(signal) as s from meal_feedback where household_id=$1 group by recipe_id', [householdId]);
+  return Object.fromEntries(rows.map(r => [r.recipe_id, Number(r.s)]));
+}
 
 export type GenerateOpts = { diet?: string; budget?: number; days?: number; servings?: number; startDate?: string; slots?: ('breakfast' | 'lunch' | 'dinner')[]; regions?: string[]; actor?: string };
 
@@ -26,9 +43,14 @@ export async function generatePlan(db: Db, householdId: string, o: GenerateOpts 
   if (!(budget > 0)) throw new ValidationError('Set a budget first');
   const servings = o.servings ?? members.length;
   const startDate = o.startDate ?? (await one<{ d: string }>(db, `select (now() at time zone $1)::date as d`, [h.timezone]))!.d;
+  const startForSlots = startDate;
+  const slots = o.slots ?? ['lunch', 'dinner'];
+  const quickSlots: string[] = [];
+  for (let d = 0; d < days; d++) for (const sl of slots) { const date = addDaysIso(startForSlots, d); if (!availableCooks(members as any, date, sl).length) quickSlots.push(`${date}:${sl}`); }
+  const prefs = await loadPrefs(db, householdId);
   const result = buildPlan(recipes, {
     budget, days, servings, startDate, slots: o.slots ?? ['lunch', 'dinner'], diets: strictDiets({ diet: o.diet ?? h.diet }, members), allergens: allAllergens(h, members),
-    equipment: h.cooking_equipment, maxMinutes: h.cooking_minutes_max, regions: o.regions ?? [h.region, 'general'], pantryItems: pantry.map(p => p.item),
+    equipment: h.cooking_equipment, maxMinutes: h.cooking_minutes_max, regions: o.regions ?? [h.region, 'general'], pantryItems: pantry.map(p => p.item), quickSlots, prefs,
   }, prices);
 
   // Replace the previous draft: remove its open shopping rows, then create the new plan and rows.
@@ -36,10 +58,10 @@ export async function generatePlan(db: Db, householdId: string, o: GenerateOpts 
   await db.query(`delete from meal_plans where household_id=$1 and status='draft'`, [householdId]);
   const plan = (await q<{ id: string }>(db, 'insert into meal_plans (household_id, week_start, budget, servings, est_total) values ($1,$2,$3,$4,$5) returning id',
     [householdId, startDate, budget, servings, result.estTotal]))[0];
-  const cooks = members.filter(m => !m.opted_out_at);
   let k = 0;
   for (const m of result.meals) {
-    const cook = cooks.length ? (cooks.find(c => c.role === 'cook') ?? cooks[k++ % cooks.length]) : null;
+    const free = availableCooks(members as any, m.day, m.slot) as typeof members;
+    const cook = free.length ? (free.find(c => c.role === 'cook') ?? free[k++ % free.length]) : null; // nobody free -> unassigned and a quick recipe
     const pm = (await q<{ id: string }>(db, 'insert into planned_meals (plan_id, day, slot, recipe_id, servings, est_cost, assigned_cook) values ($1,$2,$3,$4,$5,$6,$7) returning id',
       [plan.id, m.day, m.slot, m.recipeId, m.servings, m.estCost, cook?.id ?? null]))[0];
     const r = recipes.find(x => x.id === m.recipeId)!;
@@ -78,6 +100,7 @@ export async function swapMeal(db: Db, householdId: string, mealId: string, reci
     chosen = cands.find(c => !bad.has(c.r.id));
     if (!chosen) throw new ValidationError('No alternative meal available');
   }
+  await db.query(`insert into meal_feedback (household_id, recipe_id, signal, kind) values ($1,$2,-1,'swapped_away')`, [householdId, meal.recipe_id]);
   await removeMealItems(db, householdId, mealId);            // only this meal's items change
   await db.query('update planned_meals set recipe_id=$2, est_cost=$3, swapped=true where id=$1', [mealId, chosen.r.id, chosen.cost]);
   await addMealItems(db, householdId, mealId, chosen.r.ingredients, meal.servings, chosen.r.base_servings);
@@ -92,6 +115,8 @@ export async function approvePlan(db: Db, householdId: string, planId: string) {
 export async function markCooked(db: Db, householdId: string, mealId: string, rating?: number) {
   const r = await db.query(`update planned_meals pm set cooked_at=now(), rating=$3 from meal_plans mp where mp.id=pm.plan_id and pm.id=$1 and mp.household_id=$2`, [mealId, householdId, rating ?? null]);
   if (!r.rowCount) throw new NotFoundError('Meal not found');
+  const rid = (await one<{ recipe_id: string }>(db, 'select recipe_id from planned_meals where id=$1', [mealId]))!.recipe_id;
+  await db.query(`insert into meal_feedback (household_id, recipe_id, signal, kind) values ($1,$2,$3,$4)`, [householdId, rid, rating ? rating - 3 : 0.5, rating ? 'rating' : 'cooked']);
 }
 
 /** Planned vs actual for the latest plan. */
@@ -106,4 +131,32 @@ export async function plannedVsActual(db: Db, householdId: string) {
   };
 }
 
-export { recipeCost };
+export { recipeCost, QUICK_MINUTES };
+
+
+const STAPLES = new Set(['oil', 'mustard oil', 'salt', 'haldi', 'jeera', 'garam masala', 'mustard seeds', 'green chilli', 'ginger', 'garlic', 'curry leaves', 'tamarind']);
+
+/** "What can we cook from what is at home?" Ranks recipes (already diet/allergy filtered) by pantry overlap, favouring items close to their best-before date. */
+export async function cookFromPantry(db: Db, householdId: string, limit = 3) {
+  const h = await getHousehold(db, householdId);
+  const members = await listMembers(db, householdId);
+  const pantry = await q<{ item: string; best_before: string | null }>(db, 'select item, best_before from pantry_items where household_id=$1 and qty > 0', [householdId]);
+  if (!pantry.length) return [];
+  const soon = new Set((await q<{ item: string }>(db, `select item from pantry_items where household_id=$1 and best_before is not null and best_before <= current_date + 3`, [householdId])).map(r => r.item));
+  const have = new Set(pantry.map(p => p.item));
+  const recipes = await loadRecipes(db);
+  const filt = { diets: strictDiets({ diet: h.diet }, members), allergens: allAllergens(h, members), equipment: h.cooking_equipment, maxMinutes: h.cooking_minutes_max };
+  return recipes
+    .filter(r => passesFilter(r, filt))
+    .map(r => {
+      const main = r.ingredients.filter(i => !STAPLES.has(i.item));
+      const haveList = main.filter(i => have.has(i.item)).map(i => i.item);
+      const missing = main.filter(i => !have.has(i.item)).map(i => i.item);
+      const usesExpiring = haveList.filter(i => soon.has(i));
+      const ratio = main.length ? haveList.length / main.length : 0;
+      return { recipeId: r.id, name: r.name, have: haveList, missing, usesExpiring, score: ratio + usesExpiring.length * 0.3 };
+    })
+    .filter(r => r.have.length >= 1 && r.score >= 0.34)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+}

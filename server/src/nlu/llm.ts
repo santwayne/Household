@@ -31,7 +31,7 @@ export class AnthropicClient implements LlmClient {
   constructor(private key = config.llm.anthropicKey, private model = config.llm.parseModel) {}
   async proposeAction(text: string, ctx: LlmContext) {
     const t0 = Date.now();
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(`${config.llm.anthropicBase}/v1/messages`, {
       method: 'POST',
       headers: { 'x-api-key': this.key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -54,7 +54,7 @@ export class OpenAiClient implements LlmClient {
   constructor(private key = config.llm.openaiKey, private model = config.llm.parseModel) {}
   async proposeAction(text: string, ctx: LlmContext) {
     const t0 = Date.now();
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetch(`${config.llm.openaiBase}/v1/chat/completions`, {
       method: 'POST',
       headers: { authorization: `Bearer ${this.key}`, 'content-type': 'application/json' },
       body: JSON.stringify({

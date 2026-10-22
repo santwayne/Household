@@ -68,6 +68,13 @@ export async function handleInbound(deps: Deps, msg: InboundMsg): Promise<Handle
     logId = ex!.id; // a previous attempt crashed before finishing: safe to retry, all writes are idempotent by message id
   }
 
+  // abuse guard: more than 30 messages from one number in a minute is ignored (no reply, no processing)
+  const burst = await one<{ n: number }>(deps.pool, `select count(*) as n from message_log where direction='in' and phone=$1 and created_at > now() - interval '60 seconds'`, [phone]);
+  if ((burst?.n ?? 0) > 30) {
+    await deps.pool.query(`update message_log set outcome='rate_limited', processed_at=now() where id=$1`, [logId]);
+    return { outcome: 'ignored', replies: [] };
+  }
+
   try {
     // 2. Voice notes: transcribe, reject silence / noise / prompt echo.
     let text = msg.text ?? '';
@@ -165,7 +172,7 @@ export async function handleInbound(deps: Deps, msg: InboundMsg): Promise<Handle
       return { ...out, action, source, member, lang: useLang };
     });
 
-    return await finish(deps, logId, phone, (result as any).member ?? null, result.replies, 'processed', (result as any).action ?? null, now, (result as any).source, (result as any).allowOptedOut, (result as any).suppress, (result as any).enqueuedInTx, viaVoice);
+    return await finish(deps, logId, phone, (result as any).member ?? null, result.replies, 'processed', (result as any).action ?? null, now, (result as any).source, (result as any).allowOptedOut, (result as any).suppress, (result as any).pending ?? null, viaVoice);
   } catch (e) {
     await deps.pool.query(`update message_log set outcome='error', error=$2, processed_at=now() where id=$1`, [logId, String((e as Error).message).slice(0, 300)]);
     const known = await getMemberByPhone(deps.pool, phone);
@@ -181,11 +188,11 @@ async function persistPending(db: PoolClient, phone: string, out: ExecResult) {
 }
 
 /** Write the reply to the outbox (after the data transaction committed), flush it, and close the log row. */
-async function finish(deps: Deps, logId: string, phone: string, member: Member | null, replies: string | string[], outcome: 'processed' | 'ignored', action: Action | null, now: Date, source?: string, allowOptedOut?: boolean, suppress?: boolean, _enq?: unknown, viaVoice?: boolean): Promise<HandleResult> {
+async function finish(deps: Deps, logId: string, phone: string, member: Member | null, replies: string | string[], outcome: 'processed' | 'ignored', action: Action | null, now: Date, source?: string, allowOptedOut?: boolean, suppress?: boolean, pending?: { step?: string } | null, viaVoice?: boolean): Promise<HandleResult> {
   const list = Array.isArray(replies) ? replies : [replies];
   if (!suppress) for (const text of list.filter(Boolean)) await enqueue(deps.pool, { phone, householdId: member?.household_id, payload: { text, allowOptedOut: !!allowOptedOut } });
   await deps.pool.query(`update message_log set outcome=$2, parsed_json=$3, household_id=$4, member_id=$5, processed_at=now() where id=$1`,
-    [logId, outcome, JSON.stringify({ source: source ?? null, via_voice: !!viaVoice, action }), member?.household_id ?? null, member?.id ?? null]);
+    [logId, outcome, JSON.stringify({ source: source ?? null, via_voice: !!viaVoice, action, asked_confirmation: pending?.step === 'confirm' }), member?.household_id ?? null, member?.id ?? null]);
   if (!suppress) await processOutbox(deps.pool, deps.wa, now);
   return { outcome, replies: suppress ? [] : list, action, source };
 }
@@ -202,7 +209,7 @@ async function onboarding(db: PoolClient, phone: string, text: string, profileNa
     const inv = await peekInvite(db, joinMatch[1]);
     if (!inv) return { replies: [t(lang, 'invite_bad')], action: null, source: 'onboarding' };
     await setState(db, phone, { step: 'join_consent', code: joinMatch[1].toUpperCase(), name });
-    return { replies: [t(lang, 'consent_join', { household: inv.name })], action: null, source: 'onboarding' };
+    return { replies: [t(lang, 'consent_join', { household: inv.name }) + `\nPrivacy: ${config.publicUrl}/privacy`], action: null, source: 'onboarding' };
   }
   if (state?.step === 'join_consent') {
     if (parsed?.intent === 'yes') {
@@ -223,7 +230,7 @@ async function onboarding(db: PoolClient, phone: string, text: string, profileNa
   if (state?.step === 'start_consent' && parsed?.intent === 'no') { await setState(db, phone, null); return { replies: [t(lang, 'consent_declined')], action: null, source: 'onboarding' }; }
   // first contact: the user messaged us first, which opens the window; we ask for explicit consent before saving anything
   await setState(db, phone, { step: 'start_consent' });
-  return { replies: [t(lang, 'welcome_consent')], action: null, source: 'onboarding' };
+  return { replies: [t(lang, 'welcome_consent') + `\nPrivacy: ${config.publicUrl}/privacy`], action: null, source: 'onboarding' };
 }
 
 async function handleSetup(db: PoolClient, ctx: Ctx, state: State, text: string) {

@@ -1,14 +1,14 @@
 {
- "total": 200,
+ "total": 226,
  "note": "Synthetic messages written by the team; replace/extend with real messages from interviews and the pilot.",
  "rules": {
-  "handled": 184,
-  "correct": 184,
+  "handled": 201,
+  "correct": 201,
   "wrong": 0,
   "precisionOnHandled": 1,
-  "accuracyOverAll": 0.92
+  "accuracyOverAll": 0.889
  },
- "passedToModel": 16,
+ "passedToModel": 25,
  "model": "not run (set ANTHROPIC_API_KEY or OPENAI_API_KEY)",
  "phase1Threshold": 0.9,
  "meetsThreshold": "unknown: model path not evaluated",
@@ -93,9 +93,17 @@
    "n": 14,
    "ok": 14
   },
+  "pantry": {
+   "n": 10,
+   "ok": 10
+  },
+  "split": {
+   "n": 4,
+   "ok": 4
+  },
   "free_form": {
-   "n": 8,
-   "ok": 1
+   "n": 20,
+   "ok": 4
   }
  },
  "rulesWrong": []

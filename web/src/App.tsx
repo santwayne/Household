@@ -7,6 +7,23 @@ import { Money } from './screens/Money';
 import { FoodLog } from './screens/FoodLog';
 import { Household } from './screens/Household';
 
+function Login() {
+  const [pub, setPub] = useState<{ startLink: string; privacyUrl: string } | null>(null);
+  useEffect(() => { api.get<any>('/api/public').then(setPub).catch(() => {}); }, []);
+  return (
+    <div className="center"><div className="card" style={{ maxWidth: 400, textAlign: 'left' }}>
+      <h1>Shared Living</h1>
+      <p className="muted">Plan meals, keep the shopping list and split food costs with your flatmates, all from WhatsApp.</p>
+      <h2>New here?</h2>
+      <p className="muted">Everything starts in WhatsApp, where you agree to how your data is used before anything is saved.</p>
+      {pub && <a href={pub.startLink}><button className="primary">Start on WhatsApp</button></a>}
+      <h2 style={{ marginTop: 16 }}>Already using it?</h2>
+      <p className="muted">Send <b>dashboard</b> to the assistant. You get a one-time link that signs you in here.</p>
+      {pub && <p className="muted small"><a href={pub.privacyUrl}>Privacy notice</a></p>}
+    </div></div>
+  );
+}
+
 export type Me = { member: { id: string; name: string; role: string }; household: any };
 const TABS = [
   ['home', 'Home', '🏠'], ['plan', 'Plan', '🍽️'], ['shop', 'Shopping', '🛒'], ['money', 'Money', '💰'], ['food', 'Food log', '🥗'], ['house', 'Household', '👥'],
@@ -26,12 +43,7 @@ export function App() {
   useEffect(() => { location.hash = tab; }, [tab]);
 
   if (state === 'loading') return <div className="center muted">Loading…</div>;
-  if (state === 'login') return (
-    <div className="center"><div className="card" style={{ maxWidth: 380 }}>
-      <h1>Shared Living</h1>
-      <p className="muted">Open the WhatsApp chat with the assistant and send <b>dashboard</b>. You will get a one-time link that signs you in here.</p>
-    </div></div>
-  );
+  if (state === 'login') return <Login />;
   if (state === 'error' || !me) return <div className="center"><div className="card"><p className="error">Could not load. Check your connection and refresh.</p></div></div>;
 
   const props = { me, reloadMe: load };

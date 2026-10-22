@@ -19,8 +19,8 @@ Point Meta's webhook at `POST /webhook/whatsapp` (verification: `GET` with `WA_V
 ## Tests
 ```bash
 createdb shared_living_test
-npm test                 # 42 tests: money, planner, isolation, pipeline, webhook, voice guards, time zones
-npm run eval             # 200-message evaluation (rules, plus model if a key is set) -> eval/report.json
+npm test                 # 56 tests: money, planner, schedule, isolation, pipeline, webhook, adapters (against local fakes), pantry, rate limits
+npm run eval             # 226-message evaluation (rules, plus model if a key is set) -> eval/report.json
 ```
 `TEST_DATABASE_URL` overrides the test DB (default `postgres://postgres@localhost:5433/shared_living_test`).
 
@@ -31,7 +31,7 @@ npm run eval             # 200-message evaluation (rules, plus model if a key is
 - `server/src/http` REST API (session from a one-time WhatsApp link) and pilot admin metrics.
 - `server/src/jobs` reminders, weekly recap.
 - `web` React dashboard (Home, Weekly plan, Shopping, Money, Food log, Household).
-- `eval` 200-message set and harness.
+- `eval` 226-message set and harness.
 
 ## Design rules (from the Developer Brief)
 The AI proposes a structured action; the backend validates it, does all arithmetic and writes; the bot confirms only what was committed.

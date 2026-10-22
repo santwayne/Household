@@ -105,8 +105,23 @@ const D: Record<string, Entry> = {
   recap: {
     en: 'Weekly recap for {household}: spent {spent} of {budget} this month ({remaining} left). {open} open shopping items, {tasks} open tasks. Reply STOP to opt out.',
     hinglish: '{household} ka weekly recap: is mahine {spent}/{budget} kharch ({remaining} bacha). {open} shopping items, {tasks} kaam baaki. Band karne ke liye STOP.',
+    hi: '{household} का साप्ताहिक रिकैप: इस महीने {spent}/{budget} खर्च ({remaining} बचा)। {open} शॉपिंग आइटम, {tasks} काम बाकी। बंद करने के लिए STOP।',
+    pa: '{household} ਦਾ ਹਫ਼ਤਾਵਾਰੀ ਰਿਕੈਪ: ਇਸ ਮਹੀਨੇ {spent}/{budget} ਖਰਚ ({remaining} ਬਚਿਆ)। {open} ਸ਼ਾਪਿੰਗ ਆਈਟਮ, {tasks} ਕੰਮ ਬਾਕੀ। ਬੰਦ ਕਰਨ ਲਈ STOP।',
   },
-  budget_alert: { en: 'Heads up: {pct}% of this month\'s food budget is used ({remaining} left).', hinglish: 'Dhyan do: is mahine ka {pct}% budget ho gaya ({remaining} bacha).' },
+  pantry_set: { en: 'Pantry updated: {items}.', hinglish: 'Pantry update ho gayi: {items}.', hi: 'पैंट्री अपडेट हुई: {items}।', pa: 'ਪੈਂਟਰੀ ਅੱਪਡੇਟ ਹੋ ਗਈ: {items}।' },
+  pantry_need_qty: { en: 'Tell me how much, for example "2 kg rice".', hinglish: 'Kitna hai ye bhi batao, jaise "2 kg chawal".', hi: 'कितना है ये भी बताएँ, जैसे "2 kg चावल"।', pa: 'ਕਿੰਨਾ ਹੈ ਇਹ ਵੀ ਦੱਸੋ, ਜਿਵੇਂ "2 kg ਚੌਲ"।' },
+  pantry_empty: { en: 'Pantry is empty. Say "we have 2 kg rice" to add things.', hinglish: 'Pantry khaali hai. Bolo "ghar mein 2 kg chawal hai".', hi: 'पैंट्री खाली है। बोलें "ghar mein 2 kg chawal hai"।', pa: 'ਪੈਂਟਰੀ ਖਾਲੀ ਹੈ। ਕਹੋ "ghar mein 2 kg chawal hai"।' },
+  pantry_header: { en: 'At home:', hinglish: 'Ghar mein hai:', hi: 'घर में है:', pa: 'ਘਰ ਵਿੱਚ ਹੈ:' },
+  expiring_none: { en: 'Nothing is close to its best-before date.', hinglish: 'Kuch bhi expire hone wala nahi hai.', hi: 'कुछ भी जल्दी खराब होने वाला नहीं है।', pa: 'ਕੁਝ ਵੀ ਜਲਦੀ ਖਰਾਬ ਹੋਣ ਵਾਲਾ ਨਹੀਂ ਹੈ।' },
+  expiring_header: { en: 'Use these soon:', hinglish: 'Inhe jaldi use karo:', hi: 'इन्हें जल्दी इस्तेमाल करें:', pa: 'ਇਹਨਾਂ ਨੂੰ ਜਲਦੀ ਵਰਤੋ:' },
+  expiry_alert: { en: 'Heads up: {items} should be used soon. Say "what can I cook from the pantry" for ideas.', hinglish: 'Dhyan do: {items} jaldi use karne hain. "ghar ke saman se kya banaun" bolo, idea milenge.', hi: 'ध्यान दें: {items} जल्दी इस्तेमाल करें।', pa: 'ਧਿਆਨ ਦਿਓ: {items} ਜਲਦੀ ਵਰਤੋ।' },
+  cook_header: { en: 'You could cook with what is at home:', hinglish: 'Ghar ke saman se ye ban sakta hai:', hi: 'घर के सामान से ये बन सकता है:', pa: 'ਘਰ ਦੇ ਸਮਾਨ ਨਾਲ ਇਹ ਬਣ ਸਕਦਾ ਹੈ:' },
+  cook_line: { en: '• {name}: have {have}; need {missing}', hinglish: '• {name}: hai {have}; chahiye {missing}', hi: '• {name}: है {have}; चाहिए {missing}', pa: '• {name}: ਹੈ {have}; ਚਾਹੀਦਾ {missing}' },
+  cook_none: { en: 'Nothing matches well yet. Add what you have: "we have 2 kg rice".', hinglish: 'Abhi kuch match nahi hua. Pantry mein daalo: "ghar mein 2 kg chawal hai".', hi: 'अभी कुछ मेल नहीं खाया। पैंट्री में डालें।', pa: 'ਅਜੇ ਕੁਝ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ। ਪੈਂਟਰੀ ਵਿੱਚ ਪਾਓ।' },
+  split_unknown: { en: 'I could not match these names for the split: {names}. Members are: {members}.', hinglish: 'Split ke naam samajh nahi aaye: {names}. Members: {members}.', hi: 'बँटवारे के नाम समझ नहीं आए: {names}। सदस्य: {members}।', pa: 'ਵੰਡ ਦੇ ਨਾਮ ਸਮਝ ਨਹੀਂ ਆਏ: {names}। ਮੈਂਬਰ: {members}।' },
+  purchase_split_note: { en: ' split between {who}', hinglish: ', {who} ke beech split', hi: ', {who} के बीच बँटा', pa: ', {who} ਵਿੱਚ ਵੰਡਿਆ' },
+  budget_alert_other: { en: '{who} just logged {amount}. {pct}% of this month\'s food budget is used ({remaining} left).', hinglish: '{who} ne {amount} likhe. Is mahine ka {pct}% budget ho gaya ({remaining} bacha).', hi: '{who} ने {amount} लिखे। इस महीने का {pct}% बजट हो गया ({remaining} बचा)।', pa: '{who} ਨੇ {amount} ਲਿਖੇ। ਇਸ ਮਹੀਨੇ ਦਾ {pct}% ਬਜਟ ਹੋ ਗਿਆ ({remaining} ਬਚਿਆ)।' },
+  budget_alert: { en: 'Heads up: {pct}% of this month\'s food budget is used ({remaining} left).', hinglish: 'Dhyan do: is mahine ka {pct}% budget ho gaya ({remaining} bacha).', hi: 'ध्यान दें: इस महीने का {pct}% बजट हो गया ({remaining} बचा)।', pa: 'ਧਿਆਨ ਦਿਓ: ਇਸ ਮਹੀਨੇ ਦਾ {pct}% ਬਜਟ ਹੋ ਗਿਆ ({remaining} ਬਚਿਆ)।' },
 };
 
 export function t(lang: Lang, key: string, params: P = {}): string {
@@ -123,3 +138,7 @@ export function money(currency: string, n: number): string {
   const s = Number.isInteger(v) ? v.toLocaleString('en-IN') : v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return currency === 'INR' ? `₹${s}` : `${currency} ${s}`;
 }
+
+/** For tests: every key must exist in all four languages. */
+export const allKeys = () => Object.keys(D);
+export const hasLang = (k: string, l: Lang) => !!D[k]?.[l];

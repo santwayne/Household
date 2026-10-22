@@ -12,6 +12,7 @@ export const config = {
     appSecret: env.WA_APP_SECRET ?? '',
     verifyToken: env.WA_VERIFY_TOKEN ?? '',
     graphVersion: env.WA_GRAPH_VERSION ?? 'v21.0',
+    graphBase: env.WA_GRAPH_BASE ?? 'https://graph.facebook.com',   // overridable so adapters can be tested against a local fake
     // Approved template names: they must exist and be approved in Meta Business Manager [verify]
     templates: {
       reminder: env.WA_TPL_REMINDER ?? 'food_reminder',
@@ -25,6 +26,8 @@ export const config = {
   llm: {
     provider: (env.LLM_PROVIDER ?? (env.ANTHROPIC_API_KEY ? 'anthropic' : env.OPENAI_API_KEY ? 'openai' : 'none')) as 'anthropic' | 'openai' | 'none',
     anthropicKey: env.ANTHROPIC_API_KEY ?? '',
+    anthropicBase: env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
+    openaiBase: env.OPENAI_BASE_URL ?? 'https://api.openai.com',
     openaiKey: env.OPENAI_API_KEY ?? '',
     parseModel: env.LLM_PARSE_MODEL ?? (env.ANTHROPIC_API_KEY ? 'claude-haiku-5-5' : 'gpt-4o-mini'),
     planModel: env.LLM_PLAN_MODEL ?? (env.ANTHROPIC_API_KEY ? 'claude-sonnet-5-5' : 'gpt-4o'),

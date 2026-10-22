@@ -13,20 +13,17 @@ import { ActionSchema } from '../src/nlu/schema.js';
 
 const msgs: any[] = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../eval/messages200.json'), 'utf8'));
 
-test('eval set: rules never mis-parse a message they claim to handle, and cover >= 90% of the 200', () => {
-  let handled = 0, correct = 0;
-  const wrong: string[] = [];
+test('eval set: every message not flagged needs_llm is parsed correctly by rules; flagged ones are either left to the model or parsed correctly', () => {
+  const problems: string[] = [];
   for (const m of msgs) {
     const r = parseByRules(m.text);
-    if (!r) continue;
-    handled++;
     const e = m.expected;
+    if (!r) { if (!m.needs_llm) problems.push(`not handled: ${m.text}`); continue; }
     const ok = r.intent === e.intent && (e.amount == null || r.amount === e.amount) && (e.payer === undefined || ((r.payer ?? null) === null ? null : String(r.payer).toLowerCase()) === (e.payer ?? null)) && (e.budget == null || r.budget === e.budget);
-    if (ok) correct++; else wrong.push(`${m.text} -> ${r.intent}`);
+    if (!ok) problems.push(`wrong: ${m.text} -> ${r.intent}`);
   }
-  assert.deepEqual(wrong, []);
-  assert.ok(correct / msgs.length >= 0.9, `rules cover ${correct}/${msgs.length}`);
-  assert.equal(msgs.length, 200);
+  assert.deepEqual(problems, []);
+  assert.ok(msgs.length >= 200);
 });
 
 test('amounts', () => {

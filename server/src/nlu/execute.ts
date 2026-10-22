@@ -5,7 +5,9 @@ import { SUBSTITUTIONS } from '../domain/data.js';
 import { audit, createInvite, deleteHousehold, deleteMemberData, listMembers, optIn, optOut, updateHousehold, type Household, type Member } from '../domain/households.js';
 import { moneySummary, recordContribution, recordPurchase, recordSettlement, undoLast } from '../domain/ledger.js';
 import { addItems, markBought, mergedList, removeItem } from '../domain/shopping.js';
-import { generatePlan, getCurrentPlan, swapMeal } from '../domain/plans.js';
+import { cookFromPantry, generatePlan, getCurrentPlan, swapMeal } from '../domain/plans.js';
+import { expiringSoon, listPantry, setPantry } from '../domain/pantry.js';
+import { notify, budgetAlertTemplate, budgetAlertUsesTemplates } from '../whatsapp/notify.js';
 import { logMeal, weeklyBalance } from '../domain/health.js';
 import { loadPrices } from '../domain/pricebook.js';
 import { rankProteinPerRupee } from '../domain/protein.js';
@@ -14,11 +16,11 @@ import { completeTask, listTasks, sundayReset } from '../domain/tasks.js';
 import { issueToken } from '../http/auth.js';
 import { ValidationError } from '../domain/scope.js';
 import { t, money } from './i18n.js';
-import type { Lang } from './lang.js';
+import { asLang, type Lang } from './lang.js';
 import { resolveMember } from './names.js';
 import type { Action } from './schema.js';
 import { describeWhen, localDate, resolveWhen, weekday } from './tz.js';
-import { canonicalItem } from '../domain/items.js';
+import { canonicalItem, parseItemPhrase } from '../domain/items.js';
 
 export type Ctx = {
   db: PoolClient; h: Household; m: Member; members: Member[]; lang: Lang; msgId: string; now: Date;
@@ -47,21 +49,37 @@ export async function executeAction(c: Ctx, a: Action): Promise<ExecResult> {
 
   switch (a.intent) {
     case 'record_purchase': {
+      let splitIds: string[] | undefined;
+      if (a.split_members?.length) {
+        const unknown: string[] = [], ids: string[] = [];
+        for (const n of a.split_members) { const r = resolveMember(c.members, n, m); if ('member' in r) ids.push(r.member.id); else unknown.push(n); }
+        if (unknown.length) return R(t(lang, 'split_unknown', { names: unknown.join(', '), members: names(c) }));
+        splitIds = [...new Set(ids)];
+      }
+      const splitNote = splitIds ? t(lang, 'purchase_split_note', { who: c.members.filter(x => splitIds!.includes(x.id)).map(x => x.name).join(', ') }) : '';
       if (c.source === 'llm' && !c.confirmed && (a.needs_confirmation || a.confidence < 0.85)) {
         const w = needWho('payer', a.payer); if (!('id' in w)) return w;
-        return { replies: [t(lang, 'purchase_confirm', { payer: w.name, amount: mny(a.amount!), items: itemsSuffix(a.items) })], pending: { step: 'confirm', action: a } };
+        return { replies: [t(lang, 'purchase_confirm', { payer: w.name, amount: mny(a.amount!), items: itemsSuffix(a.items) + splitNote })], pending: { step: 'confirm', action: a } };
       }
       const payer = needWho('payer', a.payer); if (!('id' in payer)) return payer;
       const before = await moneySummary(db, h.id);
-      const r = await recordPurchase(db, { householdId: h.id, payerId: payer.id, amount: a.amount!, items: (a.items ?? []).map(item => ({ item })), store: a.store ?? undefined, waMessageId: c.msgId, actor: m.id });
+      const r = await recordPurchase(db, { householdId: h.id, payerId: payer.id, amount: a.amount!, items: (a.items ?? []).map(item => ({ item })), store: a.store ?? undefined, split: splitIds ? { type: 'equal', members: splitIds } : undefined, waMessageId: c.msgId, actor: m.id });
       const s = await moneySummary(db, h.id);
       let text = s.remaining == null
-        ? t(lang, 'purchase_saved_nobudget', { payer: payer.name, amount: mny(a.amount!), items: itemsSuffix(a.items) })
-        : t(lang, 'purchase_saved', { payer: payer.name, amount: mny(a.amount!), items: itemsSuffix(a.items), remaining: mny(s.remaining) });
+        ? t(lang, 'purchase_saved_nobudget', { payer: payer.name, amount: mny(a.amount!), items: itemsSuffix(a.items) + splitNote })
+        : t(lang, 'purchase_saved', { payer: payer.name, amount: mny(a.amount!), items: itemsSuffix(a.items) + splitNote, remaining: mny(s.remaining) });
       if (!r.duplicate && h.monthly_budget > 0) {
         const pctBefore = Math.floor((before.spentThisMonth / h.monthly_budget) * 100), pctAfter = Math.floor((s.spentThisMonth / h.monthly_budget) * 100);
         const crossed = [100, 80].find(th => pctBefore < th && pctAfter >= th);
-        if (crossed) text += '\n' + t(lang, 'budget_alert', { pct: crossed, remaining: mny(Math.max(0, s.remaining ?? 0)) });
+        if (crossed) {
+          text += '\n' + t(lang, 'budget_alert', { pct: crossed, remaining: mny(Math.max(0, s.remaining ?? 0)) });
+          // tell the other members too: free text inside their 24h window; a paid template only if BUDGET_ALERT_TEMPLATES=1
+          for (const o of c.members.filter(x => x.id !== m.id)) {
+            const ol = asLang(o.language ?? h.language);
+            await notify(db, o, c.now, t(ol, 'budget_alert_other', { who: m.name, amount: mny(a.amount!), pct: crossed, remaining: mny(Math.max(0, s.remaining ?? 0)) }),
+              { name: budgetAlertTemplate(), params: [String(crossed), mny(Math.max(0, s.remaining ?? 0))] }, budgetAlertUsesTemplates());
+          }
+        }
       }
       return R(text);
     }
@@ -205,6 +223,31 @@ export async function executeAction(c: Ctx, a: Action): Promise<ExecResult> {
     case 'invite': {
       const code = await createInvite(db, h.id, m.id);
       return R(t(lang, 'invite_created', { code, link: waLink(code) }));
+    }
+    case 'set_pantry': {
+      const done: string[] = [], noQty: string[] = [];
+      for (const phrase of a.items!) {
+        const p = parseItemPhrase(phrase);
+        if (!p.qty || !p.unit) { noQty.push(p.item); continue; }
+        await setPantry(db, h.id, { item: p.item, qty: p.qty, unit: p.unit });
+        done.push(`${p.item} ${p.qty} ${p.unit}`);
+      }
+      return R(...[done.length ? t(lang, 'pantry_set', { items: done.join(', ') }) : '', noQty.length ? t(lang, 'pantry_need_qty') : ''].filter(Boolean));
+    }
+    case 'show_pantry': {
+      const rows = await listPantry(db, h.id);
+      if (!rows.length) return R(t(lang, 'pantry_empty'));
+      return R([t(lang, 'pantry_header'), ...rows.map((r: any) => `• ${r.item} ${r.qty >= 1000 && (r.unit === 'g' || r.unit === 'ml') ? r.qty / 1000 + (r.unit === 'g' ? ' kg' : ' l') : r.qty + ' ' + r.unit}${r.best_before ? ` (best before ${String(r.best_before).slice(0, 10)})` : ''}`)].join('\n'));
+    }
+    case 'expiring': {
+      const rows = await expiringSoon(db, h.id, 3);
+      if (!rows.length) return R(t(lang, 'expiring_none'));
+      return R([t(lang, 'expiring_header'), ...rows.map((r: any) => `• ${r.item} (${String(r.best_before).slice(0, 10)})`)].join('\n'));
+    }
+    case 'cook_from_pantry': {
+      const ideas = await cookFromPantry(db, h.id);
+      if (!ideas.length) return R(t(lang, 'cook_none'));
+      return R([t(lang, 'cook_header'), ...ideas.map(i => t(lang, 'cook_line', { name: i.name, have: i.have.join(', ') || '-', missing: i.missing.join(', ') || '-' }))].join('\n'));
     }
     case 'show_tasks': {
       const tasks = await listTasks(db, h.id);

@@ -8,7 +8,12 @@ export type PlanRequest = {
   slots: ('breakfast' | 'lunch' | 'dinner')[];
   diets: string[]; allergens: string[]; equipment: string[]; maxMinutes: number;
   regions?: string[]; pantryItems?: string[];
+  /** 'YYYY-MM-DD:slot' where nobody is free to cook: only quick recipes (<= QUICK_MINUTES) are used there. */
+  quickSlots?: string[];
+  /** Learned preference per recipe id (ratings, swapped-away, cooked). Positive = liked. */
+  prefs?: Record<string, number>;
 };
+export const QUICK_MINUTES = 20;
 export type DraftMeal = { day: string; slot: string; recipeId: string; servings: number; estCost: number };
 export type PlanResult = {
   meals: DraftMeal[]; estTotal: number; fits: boolean; cheapestPossible: number | null; shortfall: number; notes: string[];
@@ -48,7 +53,8 @@ export function buildPlan(all: Recipe[], req: PlanRequest, prices: PriceMap): Pl
         const proteinPerRupee = c.r.protein_g_per_serving / Math.max(perServingCost, 1);
         const regionBonus = req.regions?.includes(c.r.region) ? 1.5 : 0;
         const pantryBonus = (req.pantryItems ?? []).filter(p => c.r.ingredients.some(i => i.item === p)).length * 0.5;
-        return { r: c.r, cost: c.cost, score: proteinPerRupee + regionBonus + pantryBonus };
+        const prefBonus = Math.max(-3, Math.min(3, req.prefs?.[c.r.id] ?? 0)) * 1.2;
+        return { r: c.r, cost: c.cost, score: proteinPerRupee + regionBonus + pantryBonus + prefBonus };
       });
     bySlot.set(slot, cands);
   }
@@ -56,31 +62,35 @@ export function buildPlan(all: Recipe[], req: PlanRequest, prices: PriceMap): Pl
   const slotsWithRecipes = req.slots.filter(s => (bySlot.get(s) ?? []).length > 0);
   if (!slotsWithRecipes.length) return { meals: [], estTotal: 0, fits: false, cheapestPossible: null, shortfall: 0, notes };
 
-  type Pick = { day: string; slot: string; c: { r: Recipe; cost: number; score: number } };
+  type Pick = { day: string; slot: string; quick: boolean; c: { r: Recipe; cost: number; score: number } };
   const picks: Pick[] = [];
   const hist: string[] = []; // across ALL slots, so the same dish does not appear for lunch and dinner on one day
   for (let d = 0; d < req.days; d++) {
     for (const slot of slotsWithRecipes) {
-      const cands = bySlot.get(slot)!;
+      const date = addDays(req.startDate, d);
+      const quick = !!req.quickSlots?.includes(`${date}:${slot}`);
+      const all_ = bySlot.get(slot)!;
+      const cands = quick && all_.some(c => c.r.prep_minutes <= QUICK_MINUTES) ? all_.filter(c => c.r.prep_minutes <= QUICK_MINUTES) : all_;
       const ranked = [...cands]
         .map(c => ({ c, s: c.score - (hist.slice(-4).includes(c.r.id) ? 100 : 0) - (hist.filter(h => h === c.r.id).length * 0.8) + (hash(c.r.id + req.startDate + d) % 100) / 1000 }))
         .sort((a, b) => b.s - a.s);
       const pick = ranked[0].c;
       hist.push(pick.r.id);
-      picks.push({ day: addDays(req.startDate, d), slot, c: pick });
+      picks.push({ day: date, slot, quick, c: pick });
     }
   }
   const total = () => Math.round(picks.reduce((s, p) => s + p.c.cost, 0) * 100) / 100;
 
-  const cheapest = (slot: string) => [...bySlot.get(slot)!].sort((a, b) => a.cost - b.cost)[0];
-  const cheapestPossible = Math.round(picks.reduce((s, p) => s + cheapest(p.slot).cost, 0) * 100) / 100;
+  const allowed = (p: { slot: string; quick: boolean }) => { const l = bySlot.get(p.slot)!; const q = p.quick ? l.filter(c => c.r.prep_minutes <= QUICK_MINUTES) : l; return q.length ? q : l; };
+  const cheapest = (p: { slot: string; quick: boolean }) => [...allowed(p)].sort((a, b) => a.cost - b.cost)[0];
+  const cheapestPossible = Math.round(picks.reduce((s, p) => s + cheapest(p).cost, 0) * 100) / 100;
 
   let guard = 0;
   while (total() > req.budget && guard++ < 500) {
     // swap the meal with the biggest potential saving to a cheaper recipe (respecting immediate repeats)
     let best: { idx: number; to: { r: Recipe; cost: number; score: number }; saving: number } | null = null;
     picks.forEach((p, idx) => {
-      for (const c of bySlot.get(p.slot)!) {
+      for (const c of allowed(p)) {
         if (c.cost >= p.c.cost) continue;
         const neighbours = picks.filter(q => q.slot === p.slot && Math.abs(new Date(q.day).getTime() - new Date(p.day).getTime()) <= 86400000 * 1 && q !== p);
         if (neighbours.some(n => n.c.r.id === c.r.id)) continue;
@@ -94,7 +104,7 @@ export function buildPlan(all: Recipe[], req: PlanRequest, prices: PriceMap): Pl
   }
   if (total() > req.budget) {
     // fall back to strictly cheapest per slot (repeats allowed)
-    picks.forEach(p => { p.c = cheapest(p.slot); });
+    picks.forEach(p => { p.c = cheapest(p); });
     notes.push('Variety was reduced to stay near your budget.');
   }
   const estTotal = total();

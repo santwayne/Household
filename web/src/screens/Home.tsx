@@ -4,6 +4,7 @@ import { useApi, useAction } from './hooks';
 export function Home({ me, go }: { me: any; go: (t: any) => void }) {
   const { data, error, reload } = useApi<any>('/api/home');
   const act = useAction();
+  const ideas = useApi<any>('/api/pantry/ideas');
   if (error) return <p className="error">{error}</p>;
   if (!data) return <p className="muted">Loading…</p>;
   const { money: m, household } = data, cur = household.currency;
@@ -44,6 +45,16 @@ export function Home({ me, go }: { me: any; go: (t: any) => void }) {
           ))}</div>
         ) : <p className="muted">The list is empty.</p>}
       </section>
+
+      {ideas.data && (ideas.data.ideas.length > 0 || ideas.data.expiring.length > 0) && (
+        <section className="card">
+          <h2>From what is at home</h2>
+          {ideas.data.expiring.length > 0 && <p className="notice small">Use soon: {ideas.data.expiring.map((e: any) => e.item).join(', ')}</p>}
+          <div className="list">{ideas.data.ideas.map((i: any) => (
+            <div key={i.recipeId}><b>{i.name}</b><div className="muted small">have: {i.have.join(', ') || '-'} · need: {i.missing.join(', ') || 'nothing more'}</div></div>
+          ))}</div>
+        </section>
+      )}
 
       {data.openTasks.length > 0 && (
         <section className="card"><h2>Open tasks</h2><div className="list">{data.openTasks.map((t: any) => <div key={t.id} className="row between"><span>{t.title}</span><span className="muted">{t.owner_name ?? 'unassigned'}</span></div>)}</div></section>

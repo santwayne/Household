@@ -53,6 +53,21 @@ export function parseWhen(t: string): { when: When | null; rest: string } {
   return { when: any ? when : null, rest: rest.replace(/\s+/g, ' ').trim() };
 }
 
+/** "Aman ne 650 ka saman liya, sirf Aman aur Raj ke liye" -> names + the text without the clause. */
+const NAMELIST = String.raw`[\p{L}][\p{L}.'’-]*(?:\s*(?:,|aur|and|&)\s*[\p{L}][\p{L}.'’-]*)*`;
+const SPLIT_CLAUSES = [
+  new RegExp(String.raw`[,;]?\s*(?:sirf|only)\s+(${NAMELIST})\s+(?:ke liye|ke beech|ke between|mein|me|between|for|ke saath)\s*$`, 'iu'),
+  new RegExp(String.raw`[,;]?\s*(${NAMELIST})\s+(?:ke beech|ke between)\s*$`, 'iu'),
+  new RegExp(String.raw`[,;]?\s*(?:split|divide[d]?)\s+(?:between|among|with)\s+(${NAMELIST})\s*$`, 'iu'),
+];
+export function extractSplit(t: string): { names: string[]; rest: string } | null {
+  for (const re of SPLIT_CLAUSES) {
+    const m = re.exec(t);
+    if (m && m.index > 0) return { names: m[1].split(/\s*(?:,|\baur\b|\band\b|&)\s*/i).map(x => x.trim()).filter(Boolean), rest: t.slice(0, m.index).trim() };
+  }
+  return null;
+}
+
 type Rule = (t: string, raw: string) => Action | null;
 const A = (a: Partial<Action> & { intent: Action['intent'] }): Action => ({ confidence: 1, needs_confirmation: false, ...a }) as Action;
 const re = (src: string, flags = 'iu') => new RegExp(src, flags);
@@ -64,6 +79,7 @@ const PURCHASE: RegExp[] = [
   re(String.raw`^(?<who>maine|mene|mainey|main|hamne|humne|मैंने) ${AMT}\s*(?:ka|ke|ki|का|के|की)\s*(?<what>.*?)\s*${BOUGHT_VERBS}$`),
   re(String.raw`^(?<who>${NAME})\s+(?:paid|spent|bought|got|purchased)\s+(?:for\s+)?${AMT}\s*(?:for|on|of|worth)?\s*(?<what>.*)$`),
   re(String.raw`^(?:i |we )?(?:bought|got|purchased) (?<what>.+?) (?:for|worth) ${AMT}$`),
+  re(String.raw`^(?<who>${NAME})\s+(?:bought|got|purchased)\s+(?<what>.+?)\s+(?:for|worth)\s+${AMT}$`),
   re(String.raw`^(?:spent|kharch kiye|kharch kiya)\s+${AMT}\s*(?:on|for|par|pe)?\s*(?<what>.*)$`),
 ];
 
@@ -118,14 +134,16 @@ export const RULES: Rule[] = [
     return null;
   },
   (t) => {
+    const sp = extractSplit(t);
+    const base = sp ? sp.rest : t;
     for (const r of PURCHASE) {
-      const m = r.exec(t); if (!m) continue;
+      const m = r.exec(base); if (!m) continue;
       const g = m.groups ?? {};
       const amtStr = m.slice(1).find(x => x && /\d/.test(x));
       const amount = amtStr ? parseAmount(amtStr) : null;
       if (!amount) continue;
       const items = g.what ? splitItems(g.what.replace(/\b(?:liya|laya|kharida)\b/g, '').trim()) : [];
-      return A({ intent: 'record_purchase', payer: who(g.who), amount, items, split: 'equal' });
+      return A({ intent: 'record_purchase', payer: who(g.who), amount, items, split: 'equal', ...(sp ? { split_members: sp.names } : {}) });
     }
     return null;
   },
@@ -143,6 +161,7 @@ export const RULES: Rule[] = [
     const m = t.match(re(String.raw`^(?:remove|delete|hata do|hatao|hata de) (?<items>.+)$`)) ?? t.match(re(String.raw`^(?<items>.+?) (?:hata do|hatao|hata de|remove karo|nahi chahiye|cancel karo|list se hatao)$`));
     if (!m?.groups) return null;
     const items = splitItems(m.groups.items);
+    if (items.some(i => /\b(?:ne|ka|ke|ki|mera|meri|tha|thi)\b/.test(i) || i.split(' ').length > 3)) return null; // a sentence, not an item: leave it to the model
     return items.length ? A({ intent: 'remove_items', items }) : null;
   },
 
@@ -161,6 +180,17 @@ export const RULES: Rule[] = [
     if (items.some(i => /\b(?:ne|ka|ke|ki)\b/.test(i) || i.split(' ').length > 3)) return null; // looks like a purchase sentence: leave it to the model
     return items.length ? A({ intent: 'mark_bought', items, amount: price }) : null;
   },
+  // --- pantry ---
+  (t) => (/(?:ghar ke (?:saman|samaan) se|ghar mein jo hai|ghar me jo hai|pantry se|from the pantry|from what we have|with what we have|jo ghar mein hai)/.test(t) && /(?:kya|cook|bana|make)/.test(t) ? A({ intent: 'cook_from_pantry' }) : null),
+  (t) => (/(?:kya|what).*(?:expire|kharab|spoil)|\bexpiring\b|expire (?:ho raha|hone wala)|best before/.test(t) ? A({ intent: 'expiring' }) : null),
+  (t) => (/^(?:pantry|pantry dikhao|show pantry|what do we have|ghar mein kya (?:kya )?hai|ghar me kya (?:kya )?hai)$/.test(t) ? A({ intent: 'show_pantry' }) : null),
+  (t) => {
+    const m = t.match(re(String.raw`^(?:pantry (?:mein|me)|ghar (?:mein|me)|we have|i have|hamare paas|add to pantry)\s+(?<items>.+?)(?:\s+(?:hai|hain|available|in the pantry))?$`));
+    if (!m?.groups || !/\d/.test(m.groups.items) || /\b(?:kya|khatam|nahi|nahin|kitna|kitne)\b/.test(m.groups.items)) return null;
+    const items = splitItems(m.groups.items);
+    return items.length ? A({ intent: 'set_pantry', items }) : null;
+  },
+
   // --- tasks ---
   (t) => (/^(?:tasks?|kaam|chores?|mere kaam|pending kaam|kaam dikhao|tasks dikhao)$/.test(t) ? A({ intent: 'show_tasks' }) : null),
   (t) => (/^(?:sunday reset|household reset|weekly reset|reset)$/.test(t) ? A({ intent: 'sunday_reset' }) : null),
@@ -179,8 +209,8 @@ export const RULES: Rule[] = [
   (t) => (/(?:aaj (?:kya|kaun sa) (?:banega|banana|khana|bana)|aaj ka (?:menu|khana)|what(?:'s| is| are)? (?:for )?(?:dinner|lunch|cooking|on the menu)(?: today)?|today'?s? (?:meals?|menu)|aaj kya)/.test(t) ? A({ intent: 'show_today' }) : null),
   (t) => {
     if (!/\b(?:plan|menu)\b|ਪਲੈਨ|प्लान/.test(t) || /(?:remind|yaad)/.test(t)) return null;
-    const budget = parseAmount(t.match(re(String.raw`budget\s*(?:of |hai |is )?(?:rs\.? |₹)?${AMT}`))?.[1] ?? t.match(re(String.raw`${AMT}\s*(?:ka |ke )?budget`))?.[1] ?? t.match(re(String.raw`(?:under|within|upto|up to)\s*${AMT}`))?.[1] ?? '');
-    const people = Number(t.match(/(\d+)\s*(?:log|people|persons?|members?|pax|jane|logon|lok)/)?.[1] ?? 0) || null;
+    const budget = parseAmount(t.match(re(String.raw`budget\s*(?:of |hai |is )?(?:rs\.? |₹)?${AMT}`))?.[1] ?? t.match(re(String.raw`${AMT}\s*(?:ka |ke )?budget`))?.[1] ?? t.match(re(String.raw`(?:under|within|upto|up to)\s*${AMT}`))?.[1] ?? t.match(re(String.raw`(?:have|about|around|approx(?:imately)?)\s+(?:about\s+|around\s+)?${AMT}`))?.[1] ?? '');
+    const people = Number(t.match(/(\d+)\s*(?:log|people|persons?|members?|pax|jane|logon|lok)/)?.[1] ?? t.match(/we(?:'re| are)\s+(\d+)/)?.[1] ?? 0) || null;
     const daysM = t.match(/(\d+)\s*(?:din|days?)/);
     const days = daysM ? Number(daysM[1]) : /(?:hafte|hafta|week|weekly|saptah)/.test(t) ? 7 : null;
     const diet = /non[- ]?veg|nonveg|chicken|mutton/.test(t) ? 'nonveg' : /eggetarian|\begg\b|anda/.test(t) ? 'egg' : /vegan/.test(t) ? 'vegan' : /\bveg\b|vegetarian|shakahari/.test(t) ? 'veg' : null;
@@ -189,7 +219,7 @@ export const RULES: Rule[] = [
   (t) => (/(?:sasta|cheap|cheapest|best|sabse)\s+protein|protein per rupee|protein kahan se|protein ranking/.test(t) ? A({ intent: 'protein_rank' }) : null),
   (t) => (/(?:how am i eating|health (?:summary|check)|healthy eating|is hafte kaisa khaya|meri eating|weekly (?:eating|health)|balance feedback)/.test(t) ? A({ intent: 'weekly_balance' }) : null),
   (t) => {
-    const m = t.match(re(String.raw`^(?:aaj |kal |today |yesterday )?(?:maine |main |i )?(?<what>.+?)\s+(?:khaya|khaaya|kha liya|khayi|khaye|ate|had|eaten|mangaya|mangwaya|order kiya|ordered)$`));
+    const m = t.match(re(String.raw`^(?:today |yesterday |for (?:lunch|dinner|breakfast) )?(?:i )?(?:had|ate|eaten)\s+(?<what>.+)$`)) ?? t.match(re(String.raw`^(?:aaj |kal |today |yesterday )?(?:maine |main |i )?(?<what>.+?)\s+(?:khaya|khaaya|kha liya|khayi|khaye|ate|had|eaten|mangaya|mangwaya|order kiya|ordered)$`));
     if (!m?.groups) return null;
     const what = m.groups.what.replace(/^(?:aaj|kal)\s+/, '');
     const ordered = /(?:bahar|order|zomato|swiggy|restaurant|dhaba|outside|ate out|eating out|pizza|burger|biryani)/.test(t);
@@ -198,7 +228,7 @@ export const RULES: Rule[] = [
     return A({ intent: 'log_meal', text: what, kind: ordered ? 'ordered' : 'home', has_vegetables: veg, has_protein: prot });
   },
   (t) => {
-    const m = t.match(re(String.raw`^(?<item>[\p{L} ]+?)\s+(?:nahi mil(?:ta|te|ti|a|ya|raha|rahi|rahe)|nahi hai|available nahi)(?:\s+.*)?$`)) ??
+    const m = t.match(re(String.raw`^(?<item>[\p{L} ]+?)\s+(?:nahi mil(?:\s+(?:raha|rahi|rahe)|ta|te|ti|a|i|ya)|nahi hai|available nahi)(?:\s+.*)?$`)) ??
       t.match(re(String.raw`^(?:substitute|alternative|replacement|replace)(?: for| of)? (?<item>.+)$`)) ??
       t.match(re(String.raw`^(?<item>.+?) ka (?:substitute|alternative|vikalp|option)$`)) ??
       t.match(re(String.raw`^no (?<item>[\p{L} ]+?) (?:here|available|around|nearby)(?:.*)?$`)) ??

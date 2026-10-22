@@ -5,6 +5,8 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { registerApi } from './http/api.js';
+import { registerRateLimit } from './http/ratelimit.js';
+import { privacyHtml } from './http/privacy.js';
 import { registerWebhook } from './whatsapp/webhook.js';
 import type { Deps } from './nlu/pipeline.js';
 
@@ -17,6 +19,8 @@ export async function buildApp(deps: Deps, opts: { logger?: boolean } = {}) {
     if (!(body as Buffer).length) return done(null, {});
     try { done(null, JSON.parse((body as Buffer).toString('utf8'))); } catch (e) { (e as any).statusCode = 400; done(e as Error, undefined); }
   });
+  registerRateLimit(app);
+  app.get('/privacy', async (_req, reply) => reply.type('text/html; charset=utf-8').send(privacyHtml()));
   registerWebhook(app, deps);
   registerApi(app);
 

@@ -38,7 +38,7 @@ export class OpenAiStt implements SttClient {
     fd.append('model', this.model);
     fd.append('response_format', 'verbose_json');
     // deliberately NO prompt parameter: prompts with names/example sentences get read back on silence
-    const res = await fetch('https://api.openai.com/v1/audio/transcriptions', { method: 'POST', headers: { authorization: `Bearer ${this.key}` }, body: fd });
+    const res = await fetch(`${config.llm.openaiBase}/v1/audio/transcriptions`, { method: 'POST', headers: { authorization: `Bearer ${this.key}` }, body: fd });
     if (!res.ok) throw new Error(`STT ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const j: any = await res.json();
     return { text: j.text ?? '', segments: j.segments, durationSec: j.duration };

@@ -2,12 +2,16 @@ import { useState } from 'react';
 import { api, fmt } from '../api';
 import { useApi, useAction } from './hooks';
 
+const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+const SLOTS = ['breakfast', 'lunch', 'dinner'];
 const ALLERGENS = ['dairy', 'gluten', 'peanut', 'soy', 'egg', 'fish', 'sesame', 'mustard'];
 
 export function Household({ me, reloadMe }: { me: any; reloadMe: () => void }) {
   const { data, error, reload } = useApi<any>('/api/household');
   const tasks = useApi<any[]>('/api/tasks');
   const pantry = useApi<any[]>('/api/pantry');
+  const audit = useApi<any[]>('/api/audit');
+  const [showLog, setShowLog] = useState(false);
   const act = useAction();
   const [invite, setInvite] = useState<{ code: string; link: string } | null>(null);
   const [task, setTask] = useState(''); const [pi, setPi] = useState(''); const [pq, setPq] = useState(''); const [pu, setPu] = useState('g'); const [pb, setPb] = useState('');
@@ -53,8 +57,22 @@ export function Household({ me, reloadMe }: { me: any; reloadMe: () => void }) {
       </section>
 
       <section className="card">
+        <h2>My schedule</h2>
+        <p className="muted small">Tap the meals you cannot cook (shifts, classes). If nobody is free for a meal, the plan picks a quick recipe (20 min or less) for it.</p>
+        <div style={{ overflowX: 'auto' }}><table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <thead><tr><th></th>{DAYS.map(d => <th key={d} className="small muted" style={{ textTransform: 'capitalize' }}>{d}</th>)}</tr></thead>
+          <tbody>{SLOTS.map(sl => (
+            <tr key={sl}><td className="small muted" style={{ textTransform: 'capitalize', paddingRight: 6 }}>{sl}</td>
+              {DAYS.map(d => {
+                const key = `${d}:${sl}`; const mine = data.members.find((m: any) => m.id === data.me.id); const busy = (mine?.busy ?? []).includes(key);
+                return <td key={key} style={{ padding: 3, textAlign: 'center' }}><button aria-pressed={busy} aria-label={`${d} ${sl} ${busy ? 'busy' : 'free'}`} className={'check' + (busy ? ' primary' : '')} disabled={act.busy}
+                  onClick={async () => { const cur: string[] = mine?.busy ?? []; await act.run(() => api.patch('/api/members/me', { schedule_prefs: { busy: busy ? cur.filter(k => k !== key) : [...cur, key] } })); reload(); }}>{busy ? '✕' : ''}</button></td>;
+              })}</tr>))}</tbody></table></div>
+      </section>
+
+      <section className="card">
         <div className="row between"><h2>Tasks</h2><button disabled={act.busy} onClick={async () => { await act.run(() => api.post('/api/tasks/reset')); tasks.reload(); }}>Sunday reset</button></div>
-        <div className="list">{(tasks.data ?? []).map((t: any) => <div key={t.id} className="row between"><span>{t.title} <span className="muted">→ {t.owner_name ?? 'unassigned'}</span></span><button disabled={act.busy} onClick={async () => { await act.run(() => api.post(`/api/tasks/${t.id}/done`)); tasks.reload(); }}>Done</button></div>)}
+        <div className="list">{(tasks.data ?? []).map((t: any) => <div key={t.id} className="row between"><span>{t.title}</span><span className="row"><select aria-label={`Owner of ${t.title}`} value={t.owner_id ?? ''} style={{ width: 'auto' }} onChange={async e => { if (e.target.value) { await act.run(() => api.post(`/api/tasks/${t.id}/swap`, { ownerId: e.target.value })); tasks.reload(); } }}><option value="">unassigned</option>{data.members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}</select><button disabled={act.busy} onClick={async () => { await act.run(() => api.post(`/api/tasks/${t.id}/done`)); tasks.reload(); }}>Done</button></span></div>)}
           {(tasks.data ?? []).length === 0 && <p className="muted">No open tasks.</p>}</div>
         <div className="row" style={{ marginTop: 8, flexWrap: 'nowrap' }}><input value={task} onChange={e => setTask(e.target.value)} placeholder="Cook dinner Monday" /><button disabled={!task.trim() || act.busy} onClick={async () => { if (await act.run(() => api.post('/api/tasks', { title: task, ownerId: me.member.id }))) { setTask(''); tasks.reload(); } }}>Add</button></div>
       </section>
@@ -86,7 +104,13 @@ export function Household({ me, reloadMe }: { me: any; reloadMe: () => void }) {
             <div className="row"><input value={confirmName} onChange={e => setConfirmName(e.target.value)} style={{ maxWidth: 240 }} aria-label="Confirm household name" /><button className="danger" disabled={confirmName !== h.name || act.busy} onClick={async () => { await act.run(() => api.del('/api/household', { confirmName })); location.reload(); }}>Delete household</button></div>
           </div>
         )}
-        <div className="row" style={{ marginTop: 14 }}><button className="ghost" onClick={async () => { await api.post('/api/logout'); location.reload(); }}>Sign out</button></div>
+        <div className="row" style={{ marginTop: 14 }}><a href="/privacy"><button className="ghost">Privacy notice</button></a><button className="ghost" onClick={async () => { await api.post('/api/logout'); location.reload(); }}>Sign out</button></div>
+      </section>
+
+      <section className="card">
+        <div className="row between"><h2>Activity log</h2><button className="ghost" onClick={() => setShowLog(!showLog)}>{showLog ? 'Hide' : 'Show'}</button></div>
+        <p className="muted small">Every change to money, plans and settings is recorded here (who and when).</p>
+        {showLog && <div className="list">{(audit.data ?? []).map((l: any, i: number) => <div key={i} className="row between"><span>{l.actor ?? 'system'} · {l.action} {l.entity}</span><span className="muted small">{new Date(l.at).toLocaleString('en-IN')}</span></div>)}</div>}
       </section>
       <p className="muted small">Budget plan {fmt(h.currency, h.monthly_budget)} per month. Recipes and nutrition values are a draft starter set pending expert review.</p>
     </>

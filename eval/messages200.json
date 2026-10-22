@@ -2270,6 +2270,154 @@
  },
  {
   "id": 193,
+  "text": "ghar mein 2 kg chawal hai",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_pantry"
+  }
+ },
+ {
+  "id": 194,
+  "text": "pantry mein 500 g paneer hai",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_pantry"
+  }
+ },
+ {
+  "id": 195,
+  "text": "we have 1 kg atta",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_pantry"
+  }
+ },
+ {
+  "id": 196,
+  "text": "pantry",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_pantry"
+  }
+ },
+ {
+  "id": 197,
+  "text": "show pantry",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_pantry"
+  }
+ },
+ {
+  "id": 198,
+  "text": "kya expire ho raha hai",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "expiring"
+  }
+ },
+ {
+  "id": 199,
+  "text": "what's expiring",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "expiring"
+  }
+ },
+ {
+  "id": 200,
+  "text": "ghar ke saman se kya banaun",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "cook_from_pantry"
+  }
+ },
+ {
+  "id": 201,
+  "text": "what can i cook from the pantry",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "cook_from_pantry"
+  }
+ },
+ {
+  "id": 202,
+  "text": "pantry se kya bana sakte hain",
+  "lang": "hinglish",
+  "kind": "pantry",
+  "needs_llm": false,
+  "expected": {
+   "intent": "cook_from_pantry"
+  }
+ },
+ {
+  "id": 203,
+  "text": "Aman ne 600 ka saman liya, sirf Aman aur Raj ke liye",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 600,
+   "payer": "aman"
+  }
+ },
+ {
+  "id": 204,
+  "text": "Raj ne 90 ka doodh liya Aman aur Priya ke beech",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 90,
+   "payer": "raj"
+  }
+ },
+ {
+  "id": 205,
+  "text": "Priya paid 500 for groceries, split between Priya and Neha",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 500,
+   "payer": "priya"
+  }
+ },
+ {
+  "id": 206,
+  "text": "Rahul ne 300 ki sabzi li, sirf Rahul aur Karan mein",
+  "lang": "hinglish",
+  "kind": "split",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 300,
+   "payer": "rahul"
+  }
+ },
+ {
+  "id": 207,
   "text": "raj ne kal sabzi mandi se uthayi thi chaar sau ki",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2281,7 +2429,7 @@
   }
  },
  {
-  "id": 194,
+  "id": 208,
   "text": "aman ne aaj chhe sau pachaas ka saman le aaya",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2293,7 +2441,7 @@
   }
  },
  {
-  "id": 195,
+  "id": 209,
   "text": "bhai maine abhi dukaan se doodh aur dahi liya sau pachas mein",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2305,7 +2453,7 @@
   }
  },
  {
-  "id": 196,
+  "id": 210,
   "text": "priya ne hazaar rupaye kitty mein rakhe",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2317,7 +2465,7 @@
   }
  },
  {
-  "id": 197,
+  "id": 211,
   "text": "kal ke liye thoda sa aloo aur tamatar mangwana hai",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2331,7 +2479,7 @@
   }
  },
  {
-  "id": 198,
+  "id": 212,
   "text": "ghar mein namak khatam hai aur cheeni bhi",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2345,7 +2493,7 @@
   }
  },
  {
-  "id": 199,
+  "id": 213,
   "text": "is mahine ab tak kitne paise gaye khane pe",
   "lang": "hinglish",
   "kind": "free_form",
@@ -2355,13 +2503,150 @@
   }
  },
  {
-  "id": 200,
+  "id": 214,
   "text": "aman ko mujhe kitne dene hain pichle hisaab ke",
   "lang": "hinglish",
   "kind": "free_form",
   "needs_llm": true,
   "expected": {
    "intent": "show_balances"
+  }
+ },
+ {
+  "id": 215,
+  "text": "can you make a veg plan for the week, we are 3 and have about 2000",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 2000,
+   "people": 3,
+   "diet": "veg"
+  }
+ },
+ {
+  "id": 216,
+  "text": "thursday wala dinner pasand nahi aaya kuch aur karo",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "dinner",
+   "day_name": "thursday"
+  }
+ },
+ {
+  "id": 217,
+  "text": "kal subah jaldi uthna hai isliye raat ko dal bhigo dena yaad dila dena",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 218,
+  "text": "aaj lunch mein maine bas maggi khayi",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 219,
+  "text": "mera pichla entry galat tha usko hata do",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "undo"
+  }
+ },
+ {
+  "id": 220,
+  "text": "raj ne mujhe do sau diye wapas",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 200,
+   "to": null
+  }
+ },
+ {
+  "id": 221,
+  "text": "udhaar chukta karna hai simran ko 500",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 500,
+   "to": "simran"
+  }
+ },
+ {
+  "id": 222,
+  "text": "bhai ye dashboard ka link bhej na",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "dashboard"
+  }
+ },
+ {
+  "id": 223,
+  "text": "ਮੈਂ 300 ਦੀ ਸਬਜ਼ੀ ਲਈ",
+  "lang": "pa",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 300,
+   "payer": null
+  }
+ },
+ {
+  "id": 224,
+  "text": "ਦੁੱਧ ਤੇ ਪਨੀਰ ਲਿਸਟ ਵਿੱਚ ਪਾ ਦਿਓ",
+  "lang": "pa",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "ਦੁੱਧ",
+    "ਪਨੀਰ"
+   ]
+  }
+ },
+ {
+  "id": 225,
+  "text": "अमन ने सब्ज़ी के पाँच सौ दिए",
+  "lang": "hi",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 500,
+   "payer": "अमन"
+  }
+ },
+ {
+  "id": 226,
+  "text": "hey, what can we cook that is cheap with protein tonight?",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "show_today"
   }
  }
 ]
