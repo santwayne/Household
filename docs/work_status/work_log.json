@@ -1,0 +1,46 @@
+{
+  "title": "Shared Living: Kaam ke hisaab se status",
+  "update_no": 1,
+  "date": "22 Oct 2026",
+  "last_completed": "Kaam 15: Aadha hissa poora kiya (schedule, pantry, split, alerts, privacy, rate limit)",
+  "tasks": [
+    {"no": 1, "kaam": "Teeno PDF samajhna", "kiya": "Product Blueprint, Target Market aur Developer Brief ka short Hinglish summary diya.", "status": "Ho gaya", "proof": "Summary chat mein di gayi.", "files": "-", "aage": "Kuch nahi."},
+    {"no": 2, "kaam": "Manual pilot kit", "kiya": "Interview script, WhatsApp messages (hand se bhejne wale), 4-hafte ka schedule, go/stop rules aur tracker sheet.", "status": "Ho gaya", "proof": "Files bani.", "files": "docs/pilot_kit.md, docs/pilot_tracker.csv", "aage": "Aap pilot shuru karo; city ka naam bharo."},
+    {"no": 3, "kaam": "Segment + city decision aur claims verify", "kiya": "Recommendation: shared flat/PG working professionals, Bengaluru. PDFs ke numbers/prices/competitor web par check kiye (MEA, Splitwise, KitchenOS, WhatsApp rates).", "status": "Ho gaya", "proof": "Table sources ke saath. mea.gov.in aur Meta page khule nahi, isliye secondary sources use hue.", "files": "PILOT_DECISION.md", "aage": "Aap: Meta rate card, Splitwise India price, MEA original table khud dekho; faisla aapka."},
+    {"no": 4, "kaam": "Database schema aur starter data", "kiya": "Saare tables (households, members, kharcha, list, plan, reminders, audit...), 32 recipes, 16 substitutes, default prices.", "status": "Ho gaya", "proof": "Migration chali; tests pass.", "files": "server/src/db, domain/data.ts", "aage": "Production Postgres lena."},
+    {"no": 5, "kaam": "Money engine", "kiya": "Equal/custom/percent split, balances, kitty, settlement suggestions, void aur audit trail. Sab code se, AI se nahi.", "status": "Ho gaya", "proof": "Tests: balances ka sum hamesha zero, retry par double entry nahi.", "files": "domain/money.ts, ledger.ts", "aage": "Kuch nahi."},
+    {"no": 6, "kaam": "Meal planner, price book, protein ranking", "kiya": "Budget-fit plan (cost code se), diet/allergy filter, swap, price book jo seekhta hai, protein per rupee.", "status": "Code ho gaya", "proof": "Tests: budget se zyada nahi jata, impossible budget saaf bolta hai, swap sirf us meal ke items badalta hai.", "files": "domain/planner.ts, plans.ts, pricebook.ts, protein.ts", "aage": "Aap: recipes, protein values aur prices kisi expert se verify karwao."},
+    {"no": 7, "kaam": "Shopping, tasks, health, reminders", "kiya": "Merged list, pantry subtract, cooking rotation, Sunday reset, private meal log + balance feedback, food-only reminders.", "status": "Ho gaya", "proof": "Tests pass.", "files": "domain/shopping.ts, tasks.ts, health.ts, reminders.ts", "aage": "Kuch nahi."},
+    {"no": 8, "kaam": "Message parser (rules)", "kiya": "Hinglish/English/Hindi/Punjabi messages ko rules se samajhna: kharcha, contribution, list, budget, plan, reminder, pantry, undo...", "status": "Ho gaya", "proof": "226-message eval: jo rules ke liye flagged hain sab sahi.", "files": "server/src/nlu/rules.ts, schema.ts", "aage": "Asli users ke messages se eval set badlo."},
+    {"no": 9, "kaam": "AI aur voice adapters", "kiya": "Claude aur OpenAI parsing (strict JSON schema), speech-to-text, silence/noise guard.", "status": "Code ho gaya", "proof": "Local fake servers se tested (headers, body, retry, parsing). Asli API kabhi nahi chali.", "files": "nlu/llm.ts, stt.ts", "aage": "Aap: API key lagao, npm run eval, asli voice notes se test."},
+    {"no": 10, "kaam": "WhatsApp layer", "kiya": "Webhook, signature check, dedupe, consent, 24h window, template fallback, outbox + retries, delivery receipts.", "status": "Code ho gaya", "proof": "Mock aur fake server se tested. Asli WhatsApp number par kabhi nahi chala.", "files": "server/src/whatsapp", "aage": "Aap: Business account + number, webhook jodo, 3 templates approve karwao."},
+    {"no": 11, "kaam": "Background jobs", "kiya": "Reminders bhejna, Sunday weekly recap, pantry expiry alerts.", "status": "Code ho gaya", "proof": "Tests pass (window ke andar text, bahar template).", "files": "server/src/jobs", "aage": "Live WhatsApp par test."},
+    {"no": 12, "kaam": "REST API + login", "kiya": "Dashboard API, WhatsApp ke one-time link se login, har query household se scoped.", "status": "Ho gaya", "proof": "Isolation tests; ek household doosre ka data nahi dekh sakta.", "files": "server/src/http", "aage": "Kuch nahi."},
+    {"no": 13, "kaam": "Dashboard (web)", "kiya": "6 screens: Home, Plan, Shopping, Money, Food log, Household. Mobile-first.", "status": "Ho gaya", "proof": "Real browser (Chromium) mein chala kar dekha, koi error nahi.", "files": "web/src", "aage": "Kuch nahi."},
+    {"no": 14, "kaam": "GitHub repo par push", "kiya": "Poora project santwayne/Household (main) mein.", "status": "Ho gaya", "proof": "Push confirm hua.", "files": "github.com/santwayne/Household", "aage": "Aap: repo ko Private karo."},
+    {"no": 15, "kaam": "Aadha hissa poora kiya", "kiya": "Schedule (shifts/classes), pasand-napasand se seekhna, pantry + expiry + cook-from-pantry, chat mein custom split, budget alert sabko, delivery receipts, privacy page, rate limits, pilot metrics (retention, correction rate), dashboard extras, saari strings 4 bhashaon mein.", "status": "Code ho gaya", "proof": "56 tests pass; browser mein verify.", "files": "server/src, web/src", "aage": "Hindi/Punjabi aur privacy notice ka review (native speaker, lawyer)."}
+  ],
+  "fixes": [
+    {"galti": "Ek hi message ki doosri item list se gir jaati thi (dedupe bahut zyada tha).", "theek": "Dedupe ab message id + item + quantity dekhta hai. Test add hua."},
+    {"galti": "Household delete SQL foreign-key order se fail hota tha.", "theek": "Ledger foreign keys deferred kiye; delete order bhi theek kiya."},
+    {"galti": "Outbox pehla reply bhejta hi nahi tha (clock compare galat).", "theek": "Ab database ke time se compare hota hai. Test pass."},
+    {"galti": "Planner lunch aur dinner mein ek hi dish de deta tha.", "theek": "Variety ab saare slots mein dekhi jaati hai."},
+    {"galti": "Rules ne 'bread nahi chahiye' ko add samjha, aur 'Aman ne ... le aaya' ko mark-bought.", "theek": "Remove rule pehle, aur lambi sentences model ko bheji jaati hain. Eval se mile."},
+    {"galti": "Eval test dheela tha; 5 aur rule gaps chhupe the.", "theek": "Test sakht kiya: non-flagged har message sahi parse hona chahiye. 5 gaps theek kiye."},
+    {"galti": "Parallel tests ek hi database par takra rahe the.", "theek": "Tests ek ke baad ek chalte hain."},
+    {"galti": "Pehle STATUS mein eval '200 mein 92%' likha tha; set 226 ho gaya.", "theek": "Numbers dobara naapke: 226 mein rules ne 201 handle kiye, sab sahi (precision 100%); 25 model ke liye."},
+    {"galti": "Pehli PDF mein kaafi cheezein 'Aadha' thi aur matlab saaf nahi tha.", "theek": "Ab teen saaf status: Ho gaya, Code ho gaya (bahar ka kaam baaki), Baaki."}
+  ],
+  "pending": [
+    {"kaam": "WhatsApp Business account, number, templates approve", "kaun": "Aap", "kab": "Pilot ke saath"},
+    {"kaam": "API key lagana, npm run eval, asli voice test", "kaun": "Aap", "kab": "Number milte hi"},
+    {"kaam": "Recipes, protein values, prices expert review", "kaun": "Aap + expert", "kab": "Launch se pehle"},
+    {"kaam": "Hindi/Punjabi replies review", "kaun": "Native speaker", "kab": "Launch se pehle"},
+    {"kaam": "Privacy notice lawyer review, contact email", "kaun": "Aap + lawyer", "kab": "Launch se pehle"},
+    {"kaam": "Manual pilot, interviews, go/stop faisla", "kaun": "Aap", "kab": "Hafta 1-4"},
+    {"kaam": "Repo Private karna", "kaun": "Aap", "kab": "Aaj"},
+    {"kaam": "CI (GitHub Actions) aur Deployment (Docker/hosting)", "kaun": "Claude", "kab": "Aap bolo to"},
+    {"kaam": "Postgres row-level security", "kaun": "Claude", "kab": "Aap bolo to"},
+    {"kaam": "Receipt OCR, pantry photos, payments, billing", "kaun": "Claude (pilot ke baad)", "kab": "Pilot ke baad"}
+  ]
+}
