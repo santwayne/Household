@@ -13,6 +13,7 @@
     "dev:server": "npm -w server run dev",
     "migrate": "npm -w server run migrate",
     "eval": "npm -w server run eval",
-    "typecheck": "npm -w server run typecheck && npm -w web run typecheck"
+    "typecheck": "npm -w server run typecheck && npm -w web run typecheck",
+    "chat": "npm -w server run chat --"
   }
 }

@@ -1,8 +1,8 @@
 {
   "title": "Shared Living: Kaam ke hisaab se status",
-  "update_no": 4,
+  "update_no": 5,
   "date": "22 Oct 2026",
-  "last_completed": "Kaam 18: Postgres row-level security (PR #4)",
+  "last_completed": "Kaam 19: Aadha bacha hissa poora kiya (recipes, servings, split, suggestions, simulator)",
   "tasks": [
     {
       "no": 1,
@@ -165,6 +165,15 @@
       "proof": "63 tests pass (purane 56 ab RLS ke saath + 7 naye). Naye tests: har table secured ya reviewed allow-list mein; A sirf A ki rows dekhta hai; doosre ke data mein insert/update/delete refuse; galat household id dene par bhi DB refuse. Policies jaan-boojh kar todkar dekha: tests fail hue, restore par pass. Browser mein dashboard chala, koi RLS error nahi. GitHub CI success.",
       "files": "server/src/db/rls.sql, server/src/db/tenant.ts, server/test/rls.test.ts, DEPLOY.md (section 5)",
       "aage": "Aap: PR #3, phir PR #4 merge karo. Dhyan: RLS galat WHERE ya galat id se bachata hai, jaan-boojh kar chalaye gaye arbitrary SQL se nahi; login/onboarding/outbox/jobs/admin trusted system paths hain jo cross-household chalte hain."
+    },
+    {
+      "no": 19,
+      "kaam": "Aadha bacha hissa poora kiya",
+      "kiya": "(1) 64 recipes, 8 regions, 29 substitutes; allergens/diet ingredient se khud nikalte hain. (2) Har meal ke servings (API + dashboard). (3) Custom/percent split chat aur dashboard mein. (4) Proactive suggestions (chat + Home card). (5) `npm run chat` simulator. (6) Eval 237 messages. (7) Do dashboard/API bugs: ek client par ek saath queries hatayi.",
+      "status": "Ho gaya",
+      "proof": "71 tests pass (naye: recipe data, strict households, servings, splits chat+API, suggestions, simulator). Real browser mein custom split form, servings 2->4 (cost double), suggestion card check hua, koi console error nahi.",
+      "files": "server/src/domain/{data,plans,suggestions}.ts, nlu/{rules,execute,i18n}.ts, cli/chat.ts, web/src/screens/{Money,Plan,Home}.tsx",
+      "aage": "Aap: recipes/protein expert review, Hindi/Punjabi review, live credentials (neeche Mera kaam)."
     }
   ],
   "fixes": [
@@ -211,6 +220,22 @@
     {
       "galti": "Mere pehle RLS tests pehli baar mein hi pass ho gaye, jab ki setup har baar policies dobara laga deta tha (tests kuch pakad nahi rahe the, ye maine socha).",
       "theek": "Alag database par policies jaan-boojh kar todi (table ki RLS hataai, policy khuli kar di): tests fail hue. Matlab tests sach mein kaam karte hain."
+    },
+    {
+      "galti": "Maine recipes '32' likhe the, asli count 31 tha.",
+      "theek": "Ab 64 hain aur test count enforce karta hai (>= 60)."
+    },
+    {
+      "galti": "'kya karna chahiye' ko rules ne 'add items' samjha (list mein 'kya karna' add ho jaata).",
+      "theek": "Suggestions rule pehle, aur sawal wale shabd (kya, kaun, kitna, kab) items nahi maane jaate. Test mein pakda."
+    },
+    {
+      "galti": "Kuch queries ek hi database connection par ek saath chal rahi thi (pg ka deprecation warning).",
+      "theek": "Ab ek ke baad ek."
+    },
+    {
+      "galti": "Purani 18 recipes ke allergen tags adhure the (jaise mustard, ghee/curd wali recipe par dairy).",
+      "theek": "Tags ab ingredients se derive hote hain; test har recipe check karta hai."
     }
   ],
   "pending": [
@@ -220,14 +245,14 @@
       "kab": "Pilot ke saath"
     },
     {
+      "kaam": "Recipes (64) aur protein values nutrition expert se review; local prices verify",
+      "kaun": "Aap + expert",
+      "kab": "Launch se pehle"
+    },
+    {
       "kaam": "API key lagana, npm run eval, asli voice test",
       "kaun": "Aap",
       "kab": "Number milte hi"
-    },
-    {
-      "kaam": "Recipes, protein values, prices expert review",
-      "kaun": "Aap + expert",
-      "kab": "Launch se pehle"
     },
     {
       "kaam": "Hindi/Punjabi replies review",

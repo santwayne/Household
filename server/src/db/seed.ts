@@ -1,8 +1,10 @@
 import type { Db } from './index.js';
-import { RECIPES, DEFAULT_PRICES_INR } from '../domain/data.js';
+import { RECIPES, DEFAULT_PRICES_INR, deriveFromIngredients } from '../domain/data.js';
 
 export async function seedReferenceData(db: Db) {
-  for (const r of RECIPES) {
+  for (const r0 of RECIPES) {
+    const d = deriveFromIngredients(r0);
+    const r = { ...r0, allergens: d.allergens, diet: d.diet };
     await db.query(
       `insert into recipes (id,name,region,diet_tags,allergens,ingredients,base_servings,protein_g_per_serving,prep_minutes,equipment,slot,reviewed)
        values ($1,$2,$3,$4,$5,$6,2,$7,$8,$9,$10,false)

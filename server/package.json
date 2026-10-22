@@ -8,7 +8,8 @@
     "migrate": "tsx src/db/migrate.ts",
     "test": "tsx --test --test-concurrency=1 test/*.test.ts",
     "eval": "tsx ../eval/run.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "chat": "tsx src/cli/chat.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.0",

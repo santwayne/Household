@@ -189,3 +189,67 @@ test('preference signals: a recipe swapped away repeatedly stops being chosen; a
   assert.ok(fb.some((f: any) => f.kind === 'swapped_away') && fb.some((f: any) => f.kind === 'rating' && f.signal === 2));
   assert.ok(first.meals.length === 4 && again.meals.length === 4);
 });
+
+test('recipe data: every ingredient is priced, allergens/diet are derived from ingredients, and each diet has real choice', async () => {
+  const { RECIPES, deriveFromIngredients, SUBSTITUTIONS } = await import('../src/domain/data.js');
+  const { estimateCost } = await import('../src/domain/pricebook.js');
+  db = await freshDb();
+  const { household: h } = await mkHousehold(db);
+  const prices = await loadPrices(db, h.id);
+  assert.ok(RECIPES.length >= 60);
+  assert.equal(new Set(RECIPES.map(r => r.id)).size, RECIPES.length);
+  for (const r of RECIPES) {
+    for (const ing of r.ing) assert.notEqual(estimateCost(prices, ing.item, ing.qty, ing.unit), null, `${r.id}: no price/unit for ${ing.item}`);
+    assert.ok(r.protein >= 3 && r.protein <= 60, `${r.id} protein ${r.protein}`);
+  }
+  const rows = await q(db, 'select id, diet_tags, allergens from recipes');
+  assert.equal(rows.length, RECIPES.length);
+  for (const r of RECIPES) {
+    const d = deriveFromIngredients(r); const row = rows.find((x: any) => x.id === r.id);
+    assert.deepEqual([...row.allergens].sort(), d.allergens, `${r.id} allergens`);
+    assert.deepEqual(row.diet_tags, [d.diet], `${r.id} diet`);
+  }
+  // a recipe that lists paneer can never be dairy-free or vegan, one with eggs is never "veg"
+  assert.ok(rows.find((x: any) => x.id === 'paneer-bhurji-roti').allergens.includes('dairy'));
+  assert.ok(rows.find((x: any) => x.id === 'upma').allergens.includes('mustard'));
+  const byDiet = (d: string) => rows.filter((x: any) => x.diet_tags[0] === d).length;
+  assert.ok(byDiet('vegan') >= 15 && byDiet('veg') >= 8 && byDiet('egg') >= 3 && byDiet('nonveg') >= 3);
+  const regions = new Map<string, number>(); for (const r of RECIPES) regions.set(r.region, (regions.get(r.region) ?? 0) + 1);
+  for (const reg of ['punjabi', 'gujarati', 'south', 'bengali', 'maharashtrian', 'rajasthani']) assert.ok((regions.get(reg) ?? 0) >= 3, reg);
+  assert.ok(SUBSTITUTIONS.length >= 25);
+});
+
+test('plans work for strict households: vegan with peanut + gluten allergies, and a non-veg household', async () => {
+  db = await freshDb();
+  const strict = await mkHousehold(db, ['Aman', 'Raj'], { diet: 'vegan', allergens: ['peanut', 'gluten', 'mustard'] });
+  const p1 = await generatePlan(db, strict.household.id, { budget: 2500, days: 5, servings: 2, startDate: '2026-11-02' });
+  assert.ok(p1.meals.length > 0 && p1.fits, p1.notes.join('; '));
+  const used = await q(db, 'select diet_tags, allergens from recipes where id = any($1)', [p1.meals.map(m => m.recipeId)]);
+  for (const r of used) { assert.deepEqual(r.diet_tags, ['vegan']); for (const a of ['peanut', 'gluten', 'mustard']) assert.ok(!r.allergens.includes(a)); }
+  const nv = await mkHousehold(db, ['Cara', 'Dev'], { diet: 'nonveg' });
+  const p2 = await generatePlan(db, nv.household.id, { budget: 4000, days: 7, servings: 2, startDate: '2026-11-02' });
+  assert.ok(p2.fits && new Set(p2.meals.map(m => m.recipeId)).size >= 7, 'a week should not repeat the same few dishes');
+});
+
+test('per-meal servings: only that meal\'s cost and shopping rows change', async () => {
+  const { setMealServings } = await import('../src/domain/plans.js');
+  db = await freshDb();
+  const { household: h } = await mkHousehold(db, ['Aman', 'Raj'], { diet: 'veg' });
+  await generatePlan(db, h.id, { budget: 3000, days: 2, servings: 2, startDate: '2026-11-02' });
+  const meals = (await getCurrentPlan(db, h.id))!.meals;
+  const target = meals[1];
+  const before = await q(db, 'select id, source_meal_id, qty from shopping_list_items where household_id=$1 order by id', [h.id]);
+  const r = await setMealServings(db, h.id, target.id, 4);
+  assert.ok(Math.abs(r.estCost - target.est_cost * 2) < 0.05, `cost ${r.estCost} should be double ${target.est_cost}`);
+  const after = await q(db, 'select id, source_meal_id, qty from shopping_list_items where household_id=$1 order by id', [h.id]);
+  const others = (rows: any[]) => rows.filter(x => x.source_meal_id !== target.id).map(x => `${x.id}:${x.qty}`).sort();
+  assert.deepEqual(others(after), others(before));
+  const mine = (rows: any[]) => rows.filter(x => x.source_meal_id === target.id).reduce((s, x) => s + Number(x.qty), 0);
+  assert.ok(Math.abs(mine(after) - mine(before) * 2) < 0.5);
+  const plan = (await getCurrentPlan(db, h.id))!;
+  assert.equal(plan.meals.find((m: any) => m.id === target.id).servings, 4);
+  assert.ok(Math.abs(plan.est_total - (meals.reduce((s: number, m: any) => s + m.est_cost, 0) + r.estCost - target.est_cost)) < 0.05);
+  await assert.rejects(setMealServings(db, h.id, target.id, 0)); await assert.rejects(setMealServings(db, h.id, target.id, 31));
+  const other = await mkHousehold(db, ['Zed']);
+  await assert.rejects(setMealServings(db, other.household.id, target.id, 3)); // another household's meal
+});

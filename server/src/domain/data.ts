@@ -42,6 +42,40 @@ export const RECIPES: RecipeSeed[] = [
   { id: 'cabbage-peas-roti', name: 'Cabbage-peas sabzi + roti', region: 'north', diet: 'vegan', allergens: ['gluten'], protein: 12, mins: 30, ing: [i('cabbage', 300), i('peas', 80), i('atta', 150), i('oil', 20, 'ml'), i('jeera', 3)] },
   { id: 'sprout-salad-bowl', name: 'Chana sprout salad bowl', region: 'general', diet: 'vegan', allergens: [], protein: 15, mins: 10, slot: ['breakfast', 'lunch'], equipment: [], ing: [i('chole', 100), i('onion', 50), i('tomato', 80), i('lemon', 1, 'piece'), i('cucumber', 100)] },
   { id: 'bread-egg-toast', name: 'Egg toast (pan)', region: 'general', diet: 'egg', allergens: ['egg', 'gluten'], protein: 16, mins: 10, slot: ['breakfast'], ing: [i('eggs', 3, 'piece'), i('bread', 4, 'piece'), i('oil', 10, 'ml'), i('onion', 40)] },
+// ---- second batch (starter set, still unreviewed): more regions and more vegan / non-veg choice
+  { id: 'makki-roti-saag', name: 'Makki roti + saag', region: 'punjabi', diet: 'veg', allergens: [], protein: 11, mins: 45, ing: [i('makki atta', 150), i('spinach', 400), i('onion', 80), i('ghee', 15), i('garlic', 10), i('ginger', 10)] },
+  { id: 'aloo-paratha-curd', name: 'Aloo paratha + curd', region: 'punjabi', diet: 'veg', allergens: [], protein: 13, mins: 35, slot: ['breakfast', 'lunch'], ing: [i('atta', 200), i('potato', 200), i('curd', 200), i('oil', 25, 'ml'), i('green chilli', 10)] },
+  { id: 'chana-masala-roti', name: 'Chana masala + roti', region: 'punjabi', diet: 'vegan', allergens: [], protein: 19, mins: 45, ing: [i('chole', 150), i('atta', 150), i('onion', 120), i('tomato', 120), i('oil', 25, 'ml'), i('garam masala', 4)] },
+  { id: 'dal-makhani-lite', name: 'Dal makhani (lite) + rice', region: 'punjabi', diet: 'veg', allergens: [], protein: 18, mins: 50, ing: [i('urad dal', 100), i('rajma', 40), i('rice', 150), i('onion', 100), i('tomato', 120), i('ghee', 15)] },
+  { id: 'dhokla-chutney', name: 'Besan dhokla + chutney', region: 'gujarati', diet: 'veg', allergens: [], protein: 12, mins: 30, slot: ['breakfast', 'dinner'], ing: [i('besan', 150), i('curd', 100), i('oil', 15, 'ml'), i('mustard seeds', 3), i('lemon', 1, 'piece'), i('green chilli', 10)] },
+  { id: 'undhiyu-lite', name: 'Undhiyu (lite) + roti', region: 'gujarati', diet: 'vegan', allergens: [], protein: 11, mins: 50, ing: [i('potato', 150), i('brinjal', 150), i('peas', 80), i('sweet potato', 100), i('atta', 150), i('oil', 25, 'ml')] },
+  { id: 'khichdi-kadhi', name: 'Khichdi + kadhi', region: 'gujarati', diet: 'veg', allergens: [], protein: 17, mins: 45, ing: [i('moong dal', 100), i('rice', 100), i('curd', 200), i('besan', 40), i('ghee', 15)] },
+  { id: 'aloo-posto-rice', name: 'Aloo posto + rice', region: 'bengali', diet: 'vegan', allergens: [], protein: 9, mins: 35, ing: [i('potato', 300), i('poppy seeds', 30), i('mustard oil', 25, 'ml'), i('rice', 150), i('green chilli', 10)] },
+  { id: 'dosa-sambar', name: 'Dosa + sambar', region: 'south', diet: 'vegan', allergens: [], protein: 13, mins: 40, slot: ['breakfast', 'dinner'], ing: [i('idli batter', 300), i('toor dal', 60), i('tomato', 80), i('onion', 60), i('oil', 20, 'ml')] },
+  { id: 'ven-pongal', name: 'Ven pongal', region: 'south', diet: 'veg', allergens: [], protein: 13, mins: 30, slot: ['breakfast', 'lunch'], ing: [i('rice', 100), i('moong dal', 80), i('ghee', 15), i('curry leaves', 4), i('ginger', 10)] },
+  { id: 'rasam-rice', name: 'Rasam + rice', region: 'south', diet: 'vegan', allergens: [], protein: 11, mins: 30, ing: [i('toor dal', 60), i('tomato', 150), i('rice', 150), i('tamarind', 10), i('curry leaves', 4), i('mustard seeds', 3), i('oil', 10, 'ml')] },
+  { id: 'coconut-rice-potato-fry', name: 'Coconut rice + potato fry', region: 'south', diet: 'vegan', allergens: [], protein: 7, mins: 35, ing: [i('rice', 150), i('coconut', 1, 'piece'), i('potato', 200), i('oil', 20, 'ml'), i('curry leaves', 4)] },
+  { id: 'veg-stew-bread', name: 'Vegetable stew + bread', region: 'south', diet: 'vegan', allergens: [], protein: 9, mins: 30, ing: [i('potato', 150), i('carrot', 100), i('peas', 80), i('coconut', 1, 'piece'), i('bread', 4, 'piece')] },
+  { id: 'sabudana-khichdi', name: 'Sabudana khichdi', region: 'maharashtrian', diet: 'vegan', allergens: [], protein: 7, mins: 25, slot: ['breakfast', 'lunch'], ing: [i('sabudana', 150), i('peanuts', 30), i('potato', 100), i('oil', 20, 'ml'), i('green chilli', 10)] },
+  { id: 'pithla-bhakri', name: 'Pithla + bajra bhakri', region: 'maharashtrian', diet: 'vegan', allergens: [], protein: 15, mins: 35, ing: [i('besan', 120), i('onion', 100), i('bajra atta', 150), i('oil', 20, 'ml')] },
+  { id: 'vangi-bhaat', name: 'Vangi bhaat (brinjal rice)', region: 'maharashtrian', diet: 'vegan', allergens: [], protein: 8, mins: 35, ing: [i('brinjal', 250), i('rice', 150), i('oil', 25, 'ml'), i('garam masala', 4)] },
+  { id: 'gatte-sabzi-roti', name: 'Gatte ki sabzi + roti', region: 'rajasthani', diet: 'veg', allergens: [], protein: 19, mins: 45, ing: [i('besan', 150), i('curd', 150), i('atta', 150), i('onion', 80), i('oil', 25, 'ml')] },
+  { id: 'bajra-roti-dal', name: 'Bajra roti + moong dal', region: 'rajasthani', diet: 'veg', allergens: [], protein: 18, mins: 35, ing: [i('bajra atta', 150), i('moong dal', 100), i('ghee', 15), i('jeera', 3)] },
+  { id: 'dal-baati-lite', name: 'Dal baati (baked, lite)', region: 'rajasthani', diet: 'veg', allergens: [], protein: 20, mins: 50, ing: [i('atta', 200), i('toor dal', 80), i('chana dal', 40), i('ghee', 25), i('onion', 60)] },
+  { id: 'rajasthani-kadhi-rice', name: 'Rajasthani kadhi + rice', region: 'rajasthani', diet: 'veg', allergens: [], protein: 13, mins: 40, ing: [i('curd', 250), i('besan', 50), i('rice', 150), i('oil', 15, 'ml'), i('green chilli', 10)] },
+  { id: 'tomato-rice', name: 'Tomato rice', region: 'general', diet: 'vegan', allergens: [], protein: 7, mins: 25, ing: [i('rice', 180), i('tomato', 250), i('onion', 80), i('oil', 20, 'ml'), i('curry leaves', 4), i('mustard seeds', 3)] },
+  { id: 'jeera-rice-dal-fry', name: 'Jeera rice + dal fry', region: 'general', diet: 'vegan', allergens: [], protein: 16, mins: 35, ing: [i('rice', 150), i('toor dal', 100), i('jeera', 4), i('onion', 80), i('tomato', 100), i('oil', 20, 'ml')] },
+  { id: 'aloo-matar-roti', name: 'Aloo matar + roti', region: 'north', diet: 'vegan', allergens: [], protein: 12, mins: 35, ing: [i('potato', 200), i('peas', 100), i('atta', 150), i('tomato', 100), i('oil', 20, 'ml')] },
+  { id: 'baingan-bharta-roti', name: 'Baingan bharta + roti', region: 'north', diet: 'vegan', allergens: [], protein: 9, mins: 40, ing: [i('brinjal', 400), i('atta', 150), i('onion', 100), i('tomato', 100), i('oil', 20, 'ml')] },
+  { id: 'tofu-bhurji-roti', name: 'Tofu bhurji + roti', region: 'general', diet: 'vegan', allergens: [], protein: 21, mins: 20, ing: [i('tofu', 200), i('atta', 150), i('onion', 100), i('tomato', 100), i('oil', 15, 'ml')] },
+  { id: 'mushroom-matar-roti', name: 'Mushroom matar + roti', region: 'north', diet: 'vegan', allergens: [], protein: 13, mins: 30, ing: [i('mushroom', 200), i('peas', 80), i('atta', 150), i('onion', 100), i('oil', 20, 'ml')] },
+  { id: 'oats-upma', name: 'Oats upma', region: 'general', diet: 'vegan', allergens: ['gluten'], protein: 9, mins: 15, slot: ['breakfast'], ing: [i('oats', 100), i('onion', 60), i('carrot', 60), i('peas', 40), i('oil', 10, 'ml'), i('mustard seeds', 3)] },
+  { id: 'paneer-tikka-roti', name: 'Paneer tikka (pan) + roti', region: 'north', diet: 'veg', allergens: [], protein: 25, mins: 30, ing: [i('paneer', 200), i('curd', 80), i('onion', 60), i('capsicum', 100), i('oil', 15, 'ml'), i('atta', 100)] },
+  { id: 'banana-peanut-toast', name: 'Banana + peanut toast', region: 'general', diet: 'vegan', allergens: [], protein: 11, mins: 10, slot: ['breakfast'], equipment: [], ing: [i('bread', 4, 'piece'), i('banana', 2, 'piece'), i('peanuts', 20)] },
+  { id: 'veg-sandwich-grilled', name: 'Grilled veg sandwich', region: 'general', diet: 'vegan', allergens: [], protein: 9, mins: 15, slot: ['breakfast', 'dinner'], ing: [i('bread', 4, 'piece'), i('cucumber', 80), i('tomato', 80), i('onion', 40), i('oil', 5, 'ml')] },
+  { id: 'egg-biryani-lite', name: 'Egg biryani (lite)', region: 'general', diet: 'egg', allergens: [], protein: 24, mins: 45, ing: [i('rice', 180), i('eggs', 4, 'piece'), i('onion', 150), i('tomato', 100), i('curd', 100), i('oil', 30, 'ml'), i('garam masala', 4)] },
+  { id: 'chicken-pulao', name: 'Chicken pulao + raita', region: 'general', diet: 'nonveg', allergens: [], protein: 36, mins: 50, ing: [i('chicken', 300), i('rice', 180), i('onion', 150), i('curd', 100), i('oil', 25, 'ml'), i('garam masala', 4)] },
+  { id: 'fish-fry-rice-dal', name: 'Fish fry + rice + dal', region: 'bengali', diet: 'nonveg', allergens: [], protein: 38, mins: 40, ing: [i('fish', 250), i('rice', 150), i('toor dal', 80), i('mustard oil', 30, 'ml'), i('haldi', 2)] },
 ];
 
 // "No curry leaves here, use this" (Target Market PDF). Starting set, needs fluent/regional review.
@@ -62,6 +96,19 @@ export const SUBSTITUTIONS: { missing: string; use: string }[] = [
   { missing: 'coriander', use: 'parsley with a squeeze of lemon' },
   { missing: 'drumstick', use: 'green beans or raw mango pieces' },
   { missing: 'mustard oil', use: 'any neutral oil plus a pinch of mustard powder' },
+  { missing: 'urad dal', use: 'moong or masoor dal (a little less creamy)' },
+  { missing: 'makki atta', use: 'fine cornmeal / polenta flour mixed with a little wheat flour so the roti holds together' },
+  { missing: 'bajra atta', use: 'jowar flour, or whole wheat flour (softer roti)' },
+  { missing: 'sabudana', use: 'poha (rinsed) for the same quick breakfast, or soaked tapioca pearls from any Asian shop' },
+  { missing: 'tofu', use: 'paneer, or crumbled boiled chickpeas' },
+  { missing: 'coconut', use: 'desiccated coconut, or a spoon of coconut milk / coconut cream' },
+  { missing: 'poppy seeds', use: 'a paste of cashews or sesame seeds (flavour changes a little)' },
+  { missing: 'idli batter', use: 'grind 3 parts rice to 1 part urad dal and ferment overnight, or use a ready dosa mix' },
+  { missing: 'buttermilk', use: 'curd mixed with water and a pinch of salt' },
+  { missing: 'ginger', use: 'a pinch of dry ginger powder (about a quarter of the quantity)' },
+  { missing: 'garlic', use: 'a pinch of garlic powder, or asafoetida (hing) for the aroma' },
+  { missing: 'mushroom', use: 'paneer or capsicum, or boiled soya chunks' },
+  { missing: 'capsicum', use: 'any firm green vegetable such as green beans or cabbage' },
 ];
 
 // Regional default prices (INR). Assumed ranges for planning, [verify] with real markets. unit: kg | l | piece
@@ -77,6 +124,8 @@ export const DEFAULT_PRICES_INR: [string, string, number][] = [
   ['ginger', 'kg', 120], ['garlic', 'kg', 150], ['green chilli', 'kg', 80], ['coriander', 'kg', 100], ['tamarind', 'kg', 200],
   ['lemon', 'piece', 4], ['bread', 'piece', 5], ['jeera', 'kg', 400], ['haldi', 'kg', 200], ['garam masala', 'kg', 600],
   ['mustard seeds', 'kg', 150], ['curry leaves', 'kg', 400], ['salt', 'kg', 20], ['tea', 'kg', 400],
+  ['urad dal', 'kg', 130], ['makki atta', 'kg', 55], ['bajra atta', 'kg', 50], ['sabudana', 'kg', 90], ['tofu', 'kg', 220], ['mushroom', 'kg', 200],
+  ['oats', 'kg', 180], ['poppy seeds', 'kg', 1200], ['coconut', 'piece', 25], ['banana', 'piece', 6], ['capsicum', 'kg', 80], ['sweet potato', 'kg', 50],
 ];
 
 // Protein per 100 g (raw/dry weight, approximate). Needs expert review before launch.
@@ -99,3 +148,24 @@ export const ITEM_ALIASES: Record<string, string> = {
   matar: 'peas', gobi: 'cauliflower', patta: 'cabbage', palak: 'spinach', 'भिंडी': 'bhindi', baingan: 'brinjal',
   gajar: 'carrot', ghee: 'ghee', 'घी': 'ghee', chai: 'tea', bread: 'bread', 'ਦੁੱਧ': 'milk', 'ਦਹੀਂ': 'curd',
 };
+
+// Allergens and diet are DERIVED from the ingredient list and merged with what is declared, so a recipe can never
+// claim to be dairy-free while listing paneer. The deterministic filter then works on the merged values.
+const ALLERGEN_BY_INGREDIENT: Record<string, string> = {
+  paneer: 'dairy', curd: 'dairy', milk: 'dairy', ghee: 'dairy',
+  atta: 'gluten', suji: 'gluten', bread: 'gluten', oats: 'gluten',
+  eggs: 'egg', peanuts: 'peanut', 'soya chunks': 'soy', tofu: 'soy', fish: 'fish',
+  'mustard seeds': 'mustard', 'mustard oil': 'mustard',
+};
+const DIET_BY_INGREDIENT: Record<string, RecipeSeed['diet']> = { chicken: 'nonveg', fish: 'nonveg', eggs: 'egg', paneer: 'veg', curd: 'veg', milk: 'veg', ghee: 'veg' };
+const DIET_RANK = { vegan: 0, veg: 1, egg: 2, nonveg: 3 } as const;
+
+export function deriveFromIngredients(r: Pick<RecipeSeed, 'allergens' | 'diet' | 'ing'>): { allergens: string[]; diet: RecipeSeed['diet'] } {
+  const allergens = new Set(r.allergens);
+  let diet: RecipeSeed['diet'] = r.diet;
+  for (const ing of r.ing) {
+    const a = ALLERGEN_BY_INGREDIENT[ing.item]; if (a) allergens.add(a);
+    const d = DIET_BY_INGREDIENT[ing.item]; if (d && DIET_RANK[d] > DIET_RANK[diet]) diet = d;
+  }
+  return { allergens: [...allergens].sort(), diet };
+}
