@@ -1,0 +1,102 @@
+{
+ "total": 200,
+ "note": "Synthetic messages written by the team; replace/extend with real messages from interviews and the pilot.",
+ "rules": {
+  "handled": 184,
+  "correct": 184,
+  "wrong": 0,
+  "precisionOnHandled": 1,
+  "accuracyOverAll": 0.92
+ },
+ "passedToModel": 16,
+ "model": "not run (set ANTHROPIC_API_KEY or OPENAI_API_KEY)",
+ "phase1Threshold": 0.9,
+ "meetsThreshold": "unknown: model path not evaluated",
+ "byKind": {
+  "purchase": {
+   "n": 30,
+   "ok": 27
+  },
+  "contribution": {
+   "n": 12,
+   "ok": 12
+  },
+  "settlement": {
+   "n": 8,
+   "ok": 8
+  },
+  "add_items": {
+   "n": 22,
+   "ok": 22
+  },
+  "mark_bought": {
+   "n": 8,
+   "ok": 7
+  },
+  "remove_items": {
+   "n": 5,
+   "ok": 5
+  },
+  "show_list": {
+   "n": 7,
+   "ok": 7
+  },
+  "budget_remaining": {
+   "n": 12,
+   "ok": 12
+  },
+  "balances": {
+   "n": 7,
+   "ok": 7
+  },
+  "set_budget": {
+   "n": 6,
+   "ok": 5
+  },
+  "plan_week": {
+   "n": 10,
+   "ok": 10
+  },
+  "show_plan": {
+   "n": 4,
+   "ok": 4
+  },
+  "show_today": {
+   "n": 5,
+   "ok": 5
+  },
+  "swap_meal": {
+   "n": 6,
+   "ok": 6
+  },
+  "log_meal": {
+   "n": 8,
+   "ok": 6
+  },
+  "weekly_balance": {
+   "n": 4,
+   "ok": 4
+  },
+  "protein_rank": {
+   "n": 5,
+   "ok": 5
+  },
+  "reminder": {
+   "n": 11,
+   "ok": 11
+  },
+  "substitution": {
+   "n": 8,
+   "ok": 6
+  },
+  "control": {
+   "n": 14,
+   "ok": 14
+  },
+  "free_form": {
+   "n": 8,
+   "ok": 1
+  }
+ },
+ "rulesWrong": []
+}

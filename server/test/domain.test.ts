@@ -1,0 +1,153 @@
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { freshDb, mkHousehold } from './helpers.js';
+import { recordPurchase, recordContribution, moneySummary, undoLast, recordSettlement } from '../src/domain/ledger.js';
+import { addItems, mergedList, markBought } from '../src/domain/shopping.js';
+import { generatePlan, getCurrentPlan, swapMeal } from '../src/domain/plans.js';
+import { updateHousehold, exportData, deleteMemberData, deleteHousehold } from '../src/domain/households.js';
+import { loadPrices } from '../src/domain/pricebook.js';
+import { rankProteinPerRupee } from '../src/domain/protein.js';
+import { setPantry } from '../src/domain/pantry.js';
+import { q } from '../src/db/index.js';
+
+let db: Awaited<ReturnType<typeof freshDb>>;
+before(async () => { db = await freshDb(); });
+
+test('purchase updates budget and ledger; retry with same message id is idempotent', async () => {
+  db = await freshDb();
+  const { household: h, members: [aman, raj] } = await mkHousehold(db);
+  const a = await recordPurchase(db, { householdId: h.id, payerId: aman.id, amount: 650, waMessageId: 'wamid.1' });
+  const b = await recordPurchase(db, { householdId: h.id, payerId: aman.id, amount: 650, waMessageId: 'wamid.1' });
+  assert.equal(a.duplicate, false); assert.equal(b.duplicate, true); assert.equal(a.id, b.id);
+  const s = await moneySummary(db, h.id);
+  assert.equal(s.spentThisMonth, 650);
+  assert.equal(s.remaining, 2350);
+  assert.equal(s.balances.find(x => x.memberId === raj.id)!.net, -325);
+  assert.equal(s.suggestions[0].amount, 325);
+  assert.equal(s.suggestions[0].toName, 'Aman');
+});
+
+test('contributions, pool purchases, settlement, undo', async () => {
+  db = await freshDb();
+  const { household: h, members: [aman, raj] } = await mkHousehold(db);
+  await recordContribution(db, { householdId: h.id, memberId: raj.id, amount: 1000 });
+  await recordPurchase(db, { householdId: h.id, payerId: aman.id, amount: 400, paidFrom: 'pool' });
+  let s = await moneySummary(db, h.id);
+  assert.equal(s.potBalance, 600);
+  await recordSettlement(db, { householdId: h.id, from: aman.id, to: raj.id, amount: 100 });
+  s = await moneySummary(db, h.id);
+  assert.equal(Math.round((s.balances.reduce((x, y) => x + y.net, 0) - s.potBalance) * 100), 0); // member nets add up to the kitty cash
+  const undone = await undoLast(db, h.id, aman.id);
+  assert.equal(undone?.kind, 'settlement');
+});
+
+test('invalid inputs are rejected (negative, foreign payer)', async () => {
+  db = await freshDb();
+  const one = await mkHousehold(db);
+  const two = await mkHousehold(db, ['Zed']);
+  await assert.rejects(recordPurchase(db, { householdId: one.household.id, payerId: one.members[0].id, amount: -5 }));
+  await assert.rejects(recordPurchase(db, { householdId: one.household.id, payerId: two.members[0].id, amount: 100 }));
+});
+
+test('price book learns from logged item prices', async () => {
+  db = await freshDb();
+  const { household: h, members: [a] } = await mkHousehold(db);
+  const before = (await loadPrices(db, h.id)).get('paneer')!;
+  assert.equal(before.source, 'default');
+  await recordPurchase(db, { householdId: h.id, payerId: a.id, amount: 100, items: [{ item: 'paneer', qty: 250, unit: 'g', price: 100 }] });
+  const after = (await loadPrices(db, h.id)).get('paneer')!;
+  assert.equal(after.source, 'purchase');
+  assert.equal(after.price, 400); // 100 for 250 g -> 400/kg
+});
+
+test('shopping list merges manual + plan rows; pantry subtracts safely', async () => {
+  db = await freshDb();
+  const { household: h, members: [a] } = await mkHousehold(db);
+  await addItems(db, h.id, ['milk', '1 kg rice', '2 kg rice'], a.id, 'wamid.x');
+  await addItems(db, h.id, ['milk'], a.id, 'wamid.x'); // retry
+  await setPantry(db, h.id, { item: 'rice', qty: 500, unit: 'g' });
+  const list = await mergedList(db, h.id);
+  const rice = list.find(i => i.item === 'rice')!;
+  assert.equal(rice.qty, 3000); assert.equal(rice.toBuyQty, 2500);
+  assert.equal(list.filter(i => i.item === 'milk').length, 1);
+  await markBought(db, h.id, 'milk', a.id);
+  assert.equal((await mergedList(db, h.id)).find(i => i.item === 'milk')!.status, 'bought');
+});
+
+test('budget-fit plan stays within budget, honours diet and allergies, swap touches only that meal', async () => {
+  db = await freshDb();
+  const { household: h, members } = await mkHousehold(db, ['Aman', 'Raj'], { diet: 'veg', allergens: ['dairy'] });
+  const plan = await generatePlan(db, h.id, { budget: 1200, days: 7, servings: 2 });
+  assert.ok(plan.fits, plan.notes.join('; '));
+  assert.ok(plan.estTotal <= 1200);
+  const cur = await getCurrentPlan(db, h.id);
+  assert.equal(cur!.meals.length, 14);
+  const ids = cur!.meals.map((m: any) => m.recipe_id);
+  const recipes = await q(db, 'select id, diet_tags, allergens from recipes where id = any($1)', [ids]);
+  for (const r of recipes) { assert.ok(!r.allergens.includes('dairy')); assert.ok(!r.diet_tags.includes('nonveg') && !r.diet_tags.includes('egg')); }
+
+  const before = await q(db, 'select id, source_meal_id, item from shopping_list_items where household_id=$1', [h.id]);
+  const target = cur!.meals[3];
+  await swapMeal(db, h.id, target.id);
+  const after = await q(db, 'select id, source_meal_id, item from shopping_list_items where household_id=$1', [h.id]);
+  const untouchedBefore = before.filter((r: any) => r.source_meal_id !== target.id).map((r: any) => r.id).sort();
+  const untouchedAfter = after.filter((r: any) => r.source_meal_id !== target.id).map((r: any) => r.id).sort();
+  assert.deepEqual(untouchedAfter, untouchedBefore);
+});
+
+test('impossible budget is reported honestly, never silently exceeded', async () => {
+  db = await freshDb();
+  const { household: h } = await mkHousehold(db);
+  const plan = await generatePlan(db, h.id, { budget: 50, days: 7, servings: 2 });
+  assert.equal(plan.fits, false);
+  assert.ok(plan.shortfall > 0);
+});
+
+test('protein per rupee ranks soya/dal above paneer', async () => {
+  db = await freshDb();
+  const { household: h } = await mkHousehold(db);
+  const rank = rankProteinPerRupee(await loadPrices(db, h.id));
+  const pos = (n: string) => rank.findIndex(r => r.item === n);
+  assert.ok(pos('soya chunks') < pos('paneer'));
+});
+
+test('tenant isolation: one household cannot read another household\'s data through any domain function', async () => {
+  db = await freshDb();
+  const A = await mkHousehold(db, ['Anu', 'Ben']);
+  const B = await mkHousehold(db, ['Cara', 'Dev']);
+  await recordPurchase(db, { householdId: A.household.id, payerId: A.members[0].id, amount: 777 });
+  await addItems(db, A.household.id, ['secret item'], A.members[0].id);
+  await generatePlan(db, A.household.id, { budget: 1500, days: 3, servings: 2 });
+  const sB = await moneySummary(db, B.household.id);
+  assert.equal(sB.spentThisMonth, 0);
+  assert.equal((await mergedList(db, B.household.id)).length, 0);
+  assert.equal(await getCurrentPlan(db, B.household.id), null);
+  const exp = await exportData(db, B.household.id, B.members[0].id);
+  assert.equal(JSON.stringify(exp).includes('777'), false);
+  assert.equal(JSON.stringify(exp).includes('secret item'), false);
+  await assert.rejects(markBought(db, B.household.id, 'secret item', B.members[0].id));
+  const hb = await q(db, 'select * from planned_meals pm join meal_plans mp on mp.id=pm.plan_id where mp.household_id=$1', [B.household.id]);
+  assert.equal(hb.length, 0);
+  // cross-household mutation attempts fail
+  const aMeal = (await getCurrentPlan(db, A.household.id))!.meals[0];
+  await assert.rejects(swapMeal(db, B.household.id, aMeal.id));
+});
+
+test('data deletion: member erase keeps balances, household delete removes everything', async () => {
+  db = await freshDb();
+  const { household: h, members: [a, b] } = await mkHousehold(db);
+  await recordPurchase(db, { householdId: h.id, payerId: a.id, amount: 200 });
+  await deleteMemberData(db, h.id, b.id);
+  const s = await moneySummary(db, h.id);
+  assert.equal(s.balances.reduce((x, y) => x + y.net, 0), 0);
+  await deleteHousehold(db, h.id);
+  assert.equal((await q(db, 'select * from purchases')).length, 0);
+  assert.equal((await q(db, 'select * from members')).length, 0);
+});
+
+test('household settings update', async () => {
+  db = await freshDb();
+  const { household: h, members: [a] } = await mkHousehold(db);
+  const u = await updateHousehold(db, h.id, a.id, { monthly_budget: 5000, diet: 'egg' });
+  assert.equal(u.monthly_budget, 5000); assert.equal(u.diet, 'egg');
+});

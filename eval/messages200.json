@@ -1,0 +1,2367 @@
+[
+ {
+  "id": 1,
+  "text": "Aman ne 650 ka saman liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 650,
+   "payer": "aman",
+   "items": []
+  }
+ },
+ {
+  "id": 2,
+  "text": "Raj ne 240 ka sabzi liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 240,
+   "payer": "raj",
+   "items": [
+    "sabzi"
+   ]
+  }
+ },
+ {
+  "id": 3,
+  "text": "Priya ne 112 ka doodh liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 112,
+   "payer": "priya",
+   "items": [
+    "doodh"
+   ]
+  }
+ },
+ {
+  "id": 4,
+  "text": "Simran ne 980 ka atta aur chawal liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 980,
+   "payer": "simran",
+   "items": [
+    "atta",
+    "chawal"
+   ]
+  }
+ },
+ {
+  "id": 5,
+  "text": "Rahul ne 1500 ka ration liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 1500,
+   "payer": "rahul",
+   "items": []
+  }
+ },
+ {
+  "id": 6,
+  "text": "Neha ne 380 ka paneer liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 380,
+   "payer": "neha",
+   "items": [
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 7,
+  "text": "Gurpreet ne 300 ka fruits liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 300,
+   "payer": "gurpreet",
+   "items": [
+    "fruits"
+   ]
+  }
+ },
+ {
+  "id": 8,
+  "text": "Karan ne 145 ka anda aur bread liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 145,
+   "payer": "karan",
+   "items": [
+    "anda",
+    "bread"
+   ]
+  }
+ },
+ {
+  "id": 9,
+  "text": "Aman ne 2200 ka grocery liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 2200,
+   "payer": "aman",
+   "items": []
+  }
+ },
+ {
+  "id": 10,
+  "text": "Raj ne 420 ka dal liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 420,
+   "payer": "raj",
+   "items": [
+    "dal"
+   ]
+  }
+ },
+ {
+  "id": 11,
+  "text": "Aman ne 500 ka saman laya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 500,
+   "payer": "aman",
+   "items": []
+  }
+ },
+ {
+  "id": 12,
+  "text": "Raj ne 500 ka saman kharida",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 500,
+   "payer": "raj",
+   "items": []
+  }
+ },
+ {
+  "id": 13,
+  "text": "Priya ne 500 ka saman le liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 500,
+   "payer": "priya",
+   "items": []
+  }
+ },
+ {
+  "id": 14,
+  "text": "maine 450 ki sabzi li",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 450,
+   "payer": null,
+   "items": [
+    "sabzi"
+   ]
+  }
+ },
+ {
+  "id": 15,
+  "text": "maine 300 ka saman liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 300,
+   "payer": null,
+   "items": []
+  }
+ },
+ {
+  "id": 16,
+  "text": "Rahul ne 1.5k ka saman liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 1500,
+   "payer": "rahul",
+   "items": []
+  }
+ },
+ {
+  "id": 17,
+  "text": "Aman ne ₹720 ka saman liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 720,
+   "payer": "aman",
+   "items": []
+  }
+ },
+ {
+  "id": 18,
+  "text": "Priya ne rs 260 ki sabzi kharidi",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 260,
+   "payer": "priya",
+   "items": [
+    "sabzi"
+   ]
+  }
+ },
+ {
+  "id": 19,
+  "text": "650 ka saman liya",
+  "lang": "hinglish",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 650,
+   "payer": null,
+   "items": []
+  }
+ },
+ {
+  "id": 20,
+  "text": "Aman paid 650 for groceries",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 650,
+   "payer": "aman",
+   "items": []
+  }
+ },
+ {
+  "id": 21,
+  "text": "Raj spent 300 on veggies",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 300,
+   "payer": "raj",
+   "items": [
+    "veggies"
+   ]
+  }
+ },
+ {
+  "id": 22,
+  "text": "Priya bought milk for 60",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 60,
+   "payer": "priya",
+   "items": [
+    "milk"
+   ]
+  }
+ },
+ {
+  "id": 23,
+  "text": "I spent 450 on groceries",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 450,
+   "payer": null,
+   "items": []
+  }
+ },
+ {
+  "id": 24,
+  "text": "Neha paid 1200 for rice and dal",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 1200,
+   "payer": "neha",
+   "items": [
+    "rice",
+    "dal"
+   ]
+  }
+ },
+ {
+  "id": 25,
+  "text": "spent 800 on fruits",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 800,
+   "payer": null,
+   "items": [
+    "fruits"
+   ]
+  }
+ },
+ {
+  "id": 26,
+  "text": "Karan paid 90 for bread",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 90,
+   "payer": "karan",
+   "items": [
+    "bread"
+   ]
+  }
+ },
+ {
+  "id": 27,
+  "text": "bought paneer for 250",
+  "lang": "en",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 250,
+   "payer": null,
+   "items": [
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 28,
+  "text": "अमन ने 650 का सामान लिया",
+  "lang": "hi",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 650,
+   "payer": "अमन",
+   "items": []
+  }
+ },
+ {
+  "id": 29,
+  "text": "राज ने 300 की सब्ज़ी खरीदी",
+  "lang": "hi",
+  "kind": "purchase",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 300,
+   "payer": "राज",
+   "items": [
+    "सब्ज़ी"
+   ]
+  }
+ },
+ {
+  "id": 30,
+  "text": "मैंने 500 का सामान लिया",
+  "lang": "hi",
+  "kind": "purchase",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 500,
+   "payer": null,
+   "items": []
+  }
+ },
+ {
+  "id": 31,
+  "text": "Raj ne 1000 diye",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 1000,
+   "member": "raj"
+  }
+ },
+ {
+  "id": 32,
+  "text": "Priya ne 500 de diye",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 500,
+   "member": "priya"
+  }
+ },
+ {
+  "id": 33,
+  "text": "Aman ne 2000 daale",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 2000,
+   "member": "aman"
+  }
+ },
+ {
+  "id": 34,
+  "text": "Simran ne 1500 jama kiye",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 1500,
+   "member": "simran"
+  }
+ },
+ {
+  "id": 35,
+  "text": "Rahul ne 750 diye",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 750,
+   "member": "rahul"
+  }
+ },
+ {
+  "id": 36,
+  "text": "Neha ne 1k diye",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 1000,
+   "member": "neha"
+  }
+ },
+ {
+  "id": 37,
+  "text": "Raj put in 1000",
+  "lang": "en",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 1000,
+   "member": "raj"
+  }
+ },
+ {
+  "id": 38,
+  "text": "Priya added 500 to the kitty",
+  "lang": "en",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 500,
+   "member": "priya"
+  }
+ },
+ {
+  "id": 39,
+  "text": "Aman contributed 2000",
+  "lang": "en",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 2000,
+   "member": "aman"
+  }
+ },
+ {
+  "id": 40,
+  "text": "Karan chipped in 600",
+  "lang": "en",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 600,
+   "member": "karan"
+  }
+ },
+ {
+  "id": 41,
+  "text": "Raj ने 1000 दिए",
+  "lang": "hi",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 1000,
+   "member": "raj"
+  }
+ },
+ {
+  "id": 42,
+  "text": "Gurpreet ne kitty mein 800 daale",
+  "lang": "hinglish",
+  "kind": "contribution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 800,
+   "member": "gurpreet"
+  }
+ },
+ {
+  "id": 43,
+  "text": "Priya ne Aman ko 200 de diye",
+  "lang": "hinglish",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 200,
+   "from": "priya",
+   "to": "aman"
+  }
+ },
+ {
+  "id": 44,
+  "text": "Raj ne Simran ko 350 diye",
+  "lang": "hinglish",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 350,
+   "from": "raj",
+   "to": "simran"
+  }
+ },
+ {
+  "id": 45,
+  "text": "Neha ne Rahul ko 120 bhej diye",
+  "lang": "hinglish",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 120,
+   "from": "neha",
+   "to": "rahul"
+  }
+ },
+ {
+  "id": 46,
+  "text": "Karan ne Aman ko 450 chuka diye",
+  "lang": "hinglish",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 450,
+   "from": "karan",
+   "to": "aman"
+  }
+ },
+ {
+  "id": 47,
+  "text": "Raj paid Aman 300",
+  "lang": "en",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 300,
+   "from": "raj",
+   "to": "aman"
+  }
+ },
+ {
+  "id": 48,
+  "text": "Priya sent Neha 150",
+  "lang": "en",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 150,
+   "from": "priya",
+   "to": "neha"
+  }
+ },
+ {
+  "id": 49,
+  "text": "Simran paid back Rahul 400",
+  "lang": "en",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 400,
+   "from": "simran",
+   "to": "rahul"
+  }
+ },
+ {
+  "id": 50,
+  "text": "maine Aman ko 250 de diye",
+  "lang": "hinglish",
+  "kind": "settlement",
+  "needs_llm": false,
+  "expected": {
+   "intent": "record_settlement",
+   "amount": 250,
+   "from": null,
+   "to": "aman"
+  }
+ },
+ {
+  "id": 51,
+  "text": "milk aur paneer add karo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "milk",
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 52,
+  "text": "doodh add karo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "doodh"
+   ]
+  }
+ },
+ {
+  "id": 53,
+  "text": "atta, chawal, dal add kar do",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "atta",
+    "chawal",
+    "dal"
+   ]
+  }
+ },
+ {
+  "id": 54,
+  "text": "tamatar aur pyaz list mein daalo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "tamatar",
+    "pyaz"
+   ]
+  }
+ },
+ {
+  "id": 55,
+  "text": "eggs add karo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "eggs"
+   ]
+  }
+ },
+ {
+  "id": 56,
+  "text": "2 kg rice add karo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "2 kg rice"
+   ]
+  }
+ },
+ {
+  "id": 57,
+  "text": "paneer jodo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 58,
+  "text": "bread chahiye",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "bread"
+   ]
+  }
+ },
+ {
+  "id": 59,
+  "text": "ghee aur namak likh do",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "ghee",
+    "namak"
+   ]
+  }
+ },
+ {
+  "id": 60,
+  "text": "chai patti add kar do",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "chai patti"
+   ]
+  }
+ },
+ {
+  "id": 61,
+  "text": "aloo, gobi, matar add karo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "aloo",
+    "gobi",
+    "matar"
+   ]
+  }
+ },
+ {
+  "id": 62,
+  "text": "curd khatam ho gaya",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "curd"
+   ]
+  }
+ },
+ {
+  "id": 63,
+  "text": "1 litre milk add karo",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "1 litre milk"
+   ]
+  }
+ },
+ {
+  "id": 64,
+  "text": "oil aur sugar daal do",
+  "lang": "hinglish",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "oil",
+    "sugar"
+   ]
+  }
+ },
+ {
+  "id": 65,
+  "text": "add milk",
+  "lang": "en",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "milk"
+   ]
+  }
+ },
+ {
+  "id": 66,
+  "text": "add milk and eggs",
+  "lang": "en",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "milk",
+    "eggs"
+   ]
+  }
+ },
+ {
+  "id": 67,
+  "text": "add rice, dal and oil to the list",
+  "lang": "en",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "rice",
+    "dal",
+    "oil"
+   ]
+  }
+ },
+ {
+  "id": 68,
+  "text": "we need onions",
+  "lang": "en",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "onions"
+   ]
+  }
+ },
+ {
+  "id": 69,
+  "text": "please add paneer",
+  "lang": "en",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 70,
+  "text": "add 2 kg atta to the shopping list",
+  "lang": "en",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "2 kg atta"
+   ]
+  }
+ },
+ {
+  "id": 71,
+  "text": "दूध जोड़ो",
+  "lang": "hi",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "दूध"
+   ]
+  }
+ },
+ {
+  "id": 72,
+  "text": "दूध और पनीर add करो",
+  "lang": "hi",
+  "kind": "add_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "दूध",
+    "पनीर"
+   ]
+  }
+ },
+ {
+  "id": 73,
+  "text": "milk le liya",
+  "lang": "hinglish",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "milk"
+   ]
+  }
+ },
+ {
+  "id": 74,
+  "text": "paneer le liya",
+  "lang": "hinglish",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 75,
+  "text": "atta aur chawal le aaya",
+  "lang": "hinglish",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "atta",
+    "chawal"
+   ]
+  }
+ },
+ {
+  "id": 76,
+  "text": "sabzi aa gayi",
+  "lang": "hinglish",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "sabzi"
+   ]
+  }
+ },
+ {
+  "id": 77,
+  "text": "eggs mil gaye",
+  "lang": "hinglish",
+  "kind": "mark_bought",
+  "needs_llm": true,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "eggs"
+   ]
+  }
+ },
+ {
+  "id": 78,
+  "text": "bought milk",
+  "lang": "en",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "milk"
+   ]
+  }
+ },
+ {
+  "id": 79,
+  "text": "got bread",
+  "lang": "en",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "bread"
+   ]
+  }
+ },
+ {
+  "id": 80,
+  "text": "picked up eggs",
+  "lang": "en",
+  "kind": "mark_bought",
+  "needs_llm": false,
+  "expected": {
+   "intent": "mark_bought",
+   "items": [
+    "eggs"
+   ]
+  }
+ },
+ {
+  "id": 81,
+  "text": "remove milk",
+  "lang": "hinglish",
+  "kind": "remove_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "remove_items",
+   "items": [
+    "milk"
+   ]
+  }
+ },
+ {
+  "id": 82,
+  "text": "paneer hata do",
+  "lang": "hinglish",
+  "kind": "remove_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "remove_items",
+   "items": [
+    "paneer"
+   ]
+  }
+ },
+ {
+  "id": 83,
+  "text": "bread nahi chahiye",
+  "lang": "hinglish",
+  "kind": "remove_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "remove_items",
+   "items": [
+    "bread"
+   ]
+  }
+ },
+ {
+  "id": 84,
+  "text": "delete eggs",
+  "lang": "hinglish",
+  "kind": "remove_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "remove_items",
+   "items": [
+    "eggs"
+   ]
+  }
+ },
+ {
+  "id": 85,
+  "text": "chai patti hatao",
+  "lang": "hinglish",
+  "kind": "remove_items",
+  "needs_llm": false,
+  "expected": {
+   "intent": "remove_items",
+   "items": [
+    "chai patti"
+   ]
+  }
+ },
+ {
+  "id": 86,
+  "text": "list dikhao",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 87,
+  "text": "shopping list",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 88,
+  "text": "show list",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 89,
+  "text": "what's on the list",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 90,
+  "text": "list mein kya hai",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 91,
+  "text": "grocery list",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 92,
+  "text": "shopping list dikhao",
+  "lang": "hinglish",
+  "kind": "show_list",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_list"
+  }
+ },
+ {
+  "id": 93,
+  "text": "kitna bacha hai?",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 94,
+  "text": "kitna bacha",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 95,
+  "text": "budget kitna bacha hai",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 96,
+  "text": "kitne paise bache",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 97,
+  "text": "how much is left?",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 98,
+  "text": "how much left",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 99,
+  "text": "remaining budget",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 100,
+  "text": "budget left",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 101,
+  "text": "कितना बचा",
+  "lang": "hi",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 102,
+  "text": "ਕਿੰਨਾ ਬਚਿਆ",
+  "lang": "pa",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 103,
+  "text": "bacha kitna hai",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": false,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 104,
+  "text": "abhi tak kitna kharch hua",
+  "lang": "hinglish",
+  "kind": "budget_remaining",
+  "needs_llm": true,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 105,
+  "text": "kisko kitna dena hai?",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 106,
+  "text": "kaun kisko dega",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 107,
+  "text": "who owes whom",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 108,
+  "text": "who owes what",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 109,
+  "text": "hisaab batao",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 110,
+  "text": "balances",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 111,
+  "text": "kitna dena hai",
+  "lang": "hinglish",
+  "kind": "balances",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_balances"
+  }
+ },
+ {
+  "id": 112,
+  "text": "budget 6000",
+  "lang": "hinglish",
+  "kind": "set_budget",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_budget",
+   "budget": 6000
+  }
+ },
+ {
+  "id": 113,
+  "text": "monthly budget 5000",
+  "lang": "hinglish",
+  "kind": "set_budget",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_budget",
+   "budget": 5000
+  }
+ },
+ {
+  "id": 114,
+  "text": "is mahine ka budget 7000",
+  "lang": "hinglish",
+  "kind": "set_budget",
+  "needs_llm": true,
+  "expected": {
+   "intent": "set_budget",
+   "budget": 7000
+  }
+ },
+ {
+  "id": 115,
+  "text": "budget set karo 4500",
+  "lang": "hinglish",
+  "kind": "set_budget",
+  "needs_llm": true,
+  "expected": {
+   "intent": "set_budget",
+   "budget": 4500
+  }
+ },
+ {
+  "id": 116,
+  "text": "set budget to 8000",
+  "lang": "hinglish",
+  "kind": "set_budget",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_budget",
+   "budget": 8000
+  }
+ },
+ {
+  "id": 117,
+  "text": "budget 5k",
+  "lang": "hinglish",
+  "kind": "set_budget",
+  "needs_llm": false,
+  "expected": {
+   "intent": "set_budget",
+   "budget": 5000
+  }
+ },
+ {
+  "id": 118,
+  "text": "is hafte ka plan, budget 3000, 2 log, veg",
+  "lang": "hinglish",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 3000,
+   "people": 2,
+   "days": 7,
+   "diet": "veg"
+  }
+ },
+ {
+  "id": 119,
+  "text": "weekly plan budget 2000 for 3 people",
+  "lang": "en",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 2000,
+   "people": 3,
+   "days": 7,
+   "diet": null
+  }
+ },
+ {
+  "id": 120,
+  "text": "plan for this week, budget 1500, 1 person, veg",
+  "lang": "hinglish",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 1500,
+   "people": 1,
+   "days": 7,
+   "diet": "veg"
+  }
+ },
+ {
+  "id": 121,
+  "text": "hafte ka plan budget 4000 4 log non-veg",
+  "lang": "en",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 4000,
+   "people": 4,
+   "days": 7,
+   "diet": "nonveg"
+  }
+ },
+ {
+  "id": 122,
+  "text": "5 din ka plan budget 1200 2 log",
+  "lang": "hinglish",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 1200,
+   "people": 2,
+   "days": 5,
+   "diet": null
+  }
+ },
+ {
+  "id": 123,
+  "text": "meal plan budget 2500 2 log egg",
+  "lang": "en",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 2500,
+   "people": 2,
+   "days": null,
+   "diet": "egg"
+  }
+ },
+ {
+  "id": 124,
+  "text": "plan banao budget 1800",
+  "lang": "hinglish",
+  "kind": "plan_week",
+  "needs_llm": true,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 1800,
+   "people": null,
+   "days": null,
+   "diet": null
+  }
+ },
+ {
+  "id": 125,
+  "text": "is hafte ka plan, budget 3500, 3 log, vegan",
+  "lang": "en",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 3500,
+   "people": 3,
+   "days": 7,
+   "diet": "vegan"
+  }
+ },
+ {
+  "id": 126,
+  "text": "weekly plan under 2200, 2 people, veg",
+  "lang": "hinglish",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 2200,
+   "people": 2,
+   "days": 7,
+   "diet": "veg"
+  }
+ },
+ {
+  "id": 127,
+  "text": "khane ka plan budget 900 2 log veg",
+  "lang": "en",
+  "kind": "plan_week",
+  "needs_llm": false,
+  "expected": {
+   "intent": "plan_week",
+   "budget": 900,
+   "people": 2,
+   "days": null,
+   "diet": "veg"
+  }
+ },
+ {
+  "id": 128,
+  "text": "plan dikhao",
+  "lang": "hinglish",
+  "kind": "show_plan",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_plan"
+  }
+ },
+ {
+  "id": 129,
+  "text": "show plan",
+  "lang": "hinglish",
+  "kind": "show_plan",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_plan"
+  }
+ },
+ {
+  "id": 130,
+  "text": "current plan",
+  "lang": "hinglish",
+  "kind": "show_plan",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_plan"
+  }
+ },
+ {
+  "id": 131,
+  "text": "plan kya hai",
+  "lang": "hinglish",
+  "kind": "show_plan",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_plan"
+  }
+ },
+ {
+  "id": 132,
+  "text": "aaj kya banega",
+  "lang": "hinglish",
+  "kind": "show_today",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_today"
+  }
+ },
+ {
+  "id": 133,
+  "text": "what's for dinner today",
+  "lang": "hinglish",
+  "kind": "show_today",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_today"
+  }
+ },
+ {
+  "id": 134,
+  "text": "aaj ka menu",
+  "lang": "hinglish",
+  "kind": "show_today",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_today"
+  }
+ },
+ {
+  "id": 135,
+  "text": "today's meals",
+  "lang": "hinglish",
+  "kind": "show_today",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_today"
+  }
+ },
+ {
+  "id": 136,
+  "text": "aaj kya banana hai",
+  "lang": "hinglish",
+  "kind": "show_today",
+  "needs_llm": false,
+  "expected": {
+   "intent": "show_today"
+  }
+ },
+ {
+  "id": 137,
+  "text": "friday dinner badlo",
+  "lang": "hinglish",
+  "kind": "swap_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "dinner",
+   "day_name": "friday"
+  }
+ },
+ {
+  "id": 138,
+  "text": "swap monday lunch",
+  "lang": "hinglish",
+  "kind": "swap_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "lunch",
+   "day_name": "monday"
+  }
+ },
+ {
+  "id": 139,
+  "text": "kal ka lunch badlo",
+  "lang": "hinglish",
+  "kind": "swap_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "lunch",
+   "day_name": "tomorrow"
+  }
+ },
+ {
+  "id": 140,
+  "text": "change saturday dinner",
+  "lang": "hinglish",
+  "kind": "swap_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "dinner",
+   "day_name": "saturday"
+  }
+ },
+ {
+  "id": 141,
+  "text": "aaj ka dinner badal do",
+  "lang": "hinglish",
+  "kind": "swap_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "dinner",
+   "day_name": "today"
+  }
+ },
+ {
+  "id": 142,
+  "text": "replace sunday breakfast",
+  "lang": "hinglish",
+  "kind": "swap_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "swap_meal",
+   "slot": "breakfast",
+   "day_name": "sunday"
+  }
+ },
+ {
+  "id": 143,
+  "text": "dal chawal khaya",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 144,
+  "text": "maine rajma chawal khaya",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 145,
+  "text": "aaj paneer sabzi roti khaya",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 146,
+  "text": "had poha",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 147,
+  "text": "ate khichdi",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 148,
+  "text": "pizza order kiya",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 149,
+  "text": "biryani zomato se mangaya",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": true,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 150,
+  "text": "aaj bahar se burger khaya",
+  "lang": "hinglish",
+  "kind": "log_meal",
+  "needs_llm": false,
+  "expected": {
+   "intent": "log_meal"
+  }
+ },
+ {
+  "id": 151,
+  "text": "how am i eating",
+  "lang": "en",
+  "kind": "weekly_balance",
+  "needs_llm": false,
+  "expected": {
+   "intent": "weekly_balance"
+  }
+ },
+ {
+  "id": 152,
+  "text": "health summary",
+  "lang": "en",
+  "kind": "weekly_balance",
+  "needs_llm": false,
+  "expected": {
+   "intent": "weekly_balance"
+  }
+ },
+ {
+  "id": 153,
+  "text": "healthy eating",
+  "lang": "en",
+  "kind": "weekly_balance",
+  "needs_llm": false,
+  "expected": {
+   "intent": "weekly_balance"
+  }
+ },
+ {
+  "id": 154,
+  "text": "meri healthy eating",
+  "lang": "en",
+  "kind": "weekly_balance",
+  "needs_llm": false,
+  "expected": {
+   "intent": "weekly_balance"
+  }
+ },
+ {
+  "id": 155,
+  "text": "sasta protein",
+  "lang": "hinglish",
+  "kind": "protein_rank",
+  "needs_llm": false,
+  "expected": {
+   "intent": "protein_rank"
+  }
+ },
+ {
+  "id": 156,
+  "text": "cheap protein",
+  "lang": "hinglish",
+  "kind": "protein_rank",
+  "needs_llm": false,
+  "expected": {
+   "intent": "protein_rank"
+  }
+ },
+ {
+  "id": 157,
+  "text": "protein per rupee",
+  "lang": "hinglish",
+  "kind": "protein_rank",
+  "needs_llm": false,
+  "expected": {
+   "intent": "protein_rank"
+  }
+ },
+ {
+  "id": 158,
+  "text": "sabse sasta protein kya hai",
+  "lang": "hinglish",
+  "kind": "protein_rank",
+  "needs_llm": true,
+  "expected": {
+   "intent": "protein_rank"
+  }
+ },
+ {
+  "id": 159,
+  "text": "best protein",
+  "lang": "hinglish",
+  "kind": "protein_rank",
+  "needs_llm": false,
+  "expected": {
+   "intent": "protein_rank"
+  }
+ },
+ {
+  "id": 160,
+  "text": "aaj raat rajma bhigona yaad dilana",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 161,
+  "text": "kal subah dahi jamana yaad dilana",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 162,
+  "text": "remind me tonight to soak chole",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 163,
+  "text": "tomorrow morning remind me to buy milk",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 164,
+  "text": "kal shaam 6 baje atta gundhna yaad dilana",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 165,
+  "text": "remind me at 7pm to start dal",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 166,
+  "text": "aaj shaam khana banana yaad dilana",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 167,
+  "text": "kal subah 8 baje paratha banana yaad dilana",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "create_reminder"
+  }
+ },
+ {
+  "id": 168,
+  "text": "reminders",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "list_reminders"
+  }
+ },
+ {
+  "id": 169,
+  "text": "mere reminders",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "list_reminders"
+  }
+ },
+ {
+  "id": 170,
+  "text": "my reminders",
+  "lang": "hinglish",
+  "kind": "reminder",
+  "needs_llm": false,
+  "expected": {
+   "intent": "list_reminders"
+  }
+ },
+ {
+  "id": 171,
+  "text": "curry leaves nahi milte",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 172,
+  "text": "paneer nahi mil raha",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 173,
+  "text": "no curry leaves here",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 174,
+  "text": "substitute for ghee",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 175,
+  "text": "methi nahi mili",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 176,
+  "text": "tamarind ka substitute",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 177,
+  "text": "toor dal nahi milti",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 178,
+  "text": "replace besan",
+  "lang": "hinglish",
+  "kind": "substitution",
+  "needs_llm": false,
+  "expected": {
+   "intent": "substitution"
+  }
+ },
+ {
+  "id": 179,
+  "text": "stop",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "stop"
+  }
+ },
+ {
+  "id": 180,
+  "text": "STOP",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "stop"
+  }
+ },
+ {
+  "id": 181,
+  "text": "start",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "start"
+  }
+ },
+ {
+  "id": 182,
+  "text": "help",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "help"
+  }
+ },
+ {
+  "id": 183,
+  "text": "undo",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "undo"
+  }
+ },
+ {
+  "id": 184,
+  "text": "galti hui",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "undo"
+  }
+ },
+ {
+  "id": 185,
+  "text": "dashboard",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "dashboard"
+  }
+ },
+ {
+  "id": 186,
+  "text": "invite",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "invite"
+  }
+ },
+ {
+  "id": 187,
+  "text": "yes",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "yes"
+  }
+ },
+ {
+  "id": 188,
+  "text": "haan",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "yes"
+  }
+ },
+ {
+  "id": 189,
+  "text": "no",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "no"
+  }
+ },
+ {
+  "id": 190,
+  "text": "nahi",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "no"
+  }
+ },
+ {
+  "id": 191,
+  "text": "hi",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "greeting"
+  }
+ },
+ {
+  "id": 192,
+  "text": "delete my data",
+  "lang": "hinglish",
+  "kind": "control",
+  "needs_llm": false,
+  "expected": {
+   "intent": "delete_data"
+  }
+ },
+ {
+  "id": 193,
+  "text": "raj ne kal sabzi mandi se uthayi thi chaar sau ki",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 400,
+   "payer": "raj"
+  }
+ },
+ {
+  "id": 194,
+  "text": "aman ne aaj chhe sau pachaas ka saman le aaya",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 650,
+   "payer": "aman"
+  }
+ },
+ {
+  "id": 195,
+  "text": "bhai maine abhi dukaan se doodh aur dahi liya sau pachas mein",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_purchase",
+   "amount": 150,
+   "payer": null
+  }
+ },
+ {
+  "id": 196,
+  "text": "priya ne hazaar rupaye kitty mein rakhe",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "record_contribution",
+   "amount": 1000,
+   "member": "priya"
+  }
+ },
+ {
+  "id": 197,
+  "text": "kal ke liye thoda sa aloo aur tamatar mangwana hai",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "aloo",
+    "tamatar"
+   ]
+  }
+ },
+ {
+  "id": 198,
+  "text": "ghar mein namak khatam hai aur cheeni bhi",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "add_items",
+   "items": [
+    "namak",
+    "cheeni"
+   ]
+  }
+ },
+ {
+  "id": 199,
+  "text": "is mahine ab tak kitne paise gaye khane pe",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "budget_remaining"
+  }
+ },
+ {
+  "id": 200,
+  "text": "aman ko mujhe kitne dene hain pichle hisaab ke",
+  "lang": "hinglish",
+  "kind": "free_form",
+  "needs_llm": true,
+  "expected": {
+   "intent": "show_balances"
+  }
+ }
+]

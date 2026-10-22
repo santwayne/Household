@@ -1,0 +1,11 @@
+household_id,city,flat_type,members,joined_via,consent_date,week1_active,week2_active,week3_active,week4_active,messages_count,purchases_logged,plan_followed,paid_or_committed,price_said_yes_to,churn_reason,notes
+H01,,,,,,,,,,,,,,,,
+H02,,,,,,,,,,,,,,,,
+H03,,,,,,,,,,,,,,,,
+H04,,,,,,,,,,,,,,,,
+H05,,,,,,,,,,,,,,,,
+H06,,,,,,,,,,,,,,,,
+H07,,,,,,,,,,,,,,,,
+H08,,,,,,,,,,,,,,,,
+H09,,,,,,,,,,,,,,,,
+H10,,,,,,,,,,,,,,,,
