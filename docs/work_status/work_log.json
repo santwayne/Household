@@ -1,8 +1,8 @@
 {
   "title": "Shared Living: Kaam ke hisaab se status",
-  "update_no": 2,
+  "update_no": 3,
   "date": "22 Oct 2026",
-  "last_completed": "Kaam 16: GitHub Actions CI (PR #2)",
+  "last_completed": "Kaam 17: Docker + deployment setup (PR #3)",
   "tasks": [
     {
       "no": 1,
@@ -147,6 +147,15 @@
       "proof": "Wahi steps local chalaye (sab pass) aur GitHub par PR #2 ka pehla CI run success.",
       "files": ".github/workflows/ci.yml, package.json",
       "aage": "Aap: PR #2 merge karo. Chaho to Settings mein main par 'CI pass hona zaroori' rule lagao."
+    },
+    {
+      "no": 17,
+      "kaam": "Docker aur deployment setup",
+      "kiya": "Dockerfile (non-root, health check), docker-compose (app + Postgres 16), .dockerignore, DEPLOY.md (settings, HTTPS/Caddy, WhatsApp webhook, backups). CI mein naya docker job jo poora stack boot karke check karta hai.",
+      "status": "Ho gaya",
+      "proof": "Image build hui, container healthy, non-root; signed webhook 200, galat signature 401, dashboard aur /privacy chale. GitHub CI par compose stack bhi boot hua (docker + test jobs success). Mere sandbox mein Docker Hub ne Postgres image rok di thi, isliye full compose wahin GitHub par verify hua.",
+      "files": "Dockerfile, docker-compose.yml, DEPLOY.md, .github/workflows/ci.yml",
+      "aage": "Aap: PR #2 phir PR #3 merge karo. Asli hosting (server/account), monitoring aur secrets manager aapko lena hoga."
     }
   ],
   "fixes": [
@@ -228,9 +237,9 @@
       "kab": "Aaj"
     },
     {
-      "kaam": "Deployment (Docker/hosting)",
-      "kaun": "Claude",
-      "kab": "Agla kaam"
+      "kaam": "Hosting par asli deploy, monitoring, secrets manager",
+      "kaun": "Aap (server/account chahiye)",
+      "kab": "Pilot se pehle"
     },
     {
       "kaam": "Postgres row-level security",
