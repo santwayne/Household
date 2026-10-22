@@ -35,7 +35,15 @@ test('pantry by chat: add, show, cook from what is at home, expiry list', async 
   assert.doesNotMatch(lastTo(P[0]), /Pantry update/);
   await say(P[0], 'pantry'); assert.match(lastTo(P[0]), /chawal|rice/);
   await say(P[0], 'ghar ke saman se kya banaun');
-  assert.match(lastTo(P[0]), /Dal tadka|Masoor|Moong|Gujarati|Sambar|khichdi|Rajma/i);
+  const ideas = lastTo(P[0]);
+  assert.match(ideas, /Ghar ke saman se ye ban sakta hai/);
+  assert.match(ideas, /hai .*toor dal|hai .*rice/);                 // every idea is built on what is actually at home
+  const { cookFromPantry } = await import('../src/domain/plans.js');
+  const hh = (await q(testPool, 'select id from households'))[0].id;
+  const a = await cookFromPantry(testPool, hh, 5), b = await cookFromPantry(testPool, hh, 5);
+  assert.deepEqual(a.map(x => x.recipeId), b.map(x => x.recipeId));      // deterministic
+  assert.ok(a.every(x => x.have.length >= 1 && x.score >= 0.34));
+  assert.deepEqual(a.map(x => x.score), [...a.map(x => x.score)].sort((m, n) => n - m));
   const h = (await q(testPool, 'select id from households'))[0];
   await setPantry(testPool, h.id, { item: 'paneer', qty: 200, unit: 'g', bestBefore: new Date(Date.now() + 86400000).toISOString().slice(0, 10) });
   await say(P[0], 'kya expire ho raha hai'); assert.match(lastTo(P[0]), /paneer/);

@@ -173,6 +173,6 @@ export async function cookFromPantry(db: Db, householdId: string, limit = 3) {
       return { recipeId: r.id, name: r.name, have: haveList, missing, usesExpiring, score: ratio + usesExpiring.length * 0.3 };
     })
     .filter(r => r.have.length >= 1 && r.score >= 0.34)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))   // stable: equal scores never depend on row order
     .slice(0, limit);
 }
