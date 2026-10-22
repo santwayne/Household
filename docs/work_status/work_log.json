@@ -236,6 +236,10 @@
     {
       "galti": "Purani 18 recipes ke allergen tags adhure the (jaise mustard, ghee/curd wali recipe par dairy).",
       "theek": "Tags ab ingredients se derive hote hain; test har recipe check karta hai."
+    },
+    {
+      "galti": "PR #6 par GitHub CI fail hui jabki mere local tests pass the (ek test recipes ke row order par depend karta tha).",
+      "theek": "Logs nahi khulte the, isliye wahi CI steps fresh clone + khaali database par chalaye: fail dobara dikha, pakda, theek kiya (barabar score par naam se sort). Ab fresh aur reused dono database par 71/71, aur GitHub CI green."
     }
   ],
   "pending": [
