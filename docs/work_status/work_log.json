@@ -1,8 +1,8 @@
 {
   "title": "Shared Living: Kaam ke hisaab se status",
-  "update_no": 3,
+  "update_no": 4,
   "date": "22 Oct 2026",
-  "last_completed": "Kaam 17: Docker + deployment setup (PR #3)",
+  "last_completed": "Kaam 18: Postgres row-level security (PR #4)",
   "tasks": [
     {
       "no": 1,
@@ -156,6 +156,15 @@
       "proof": "Image build hui, container healthy, non-root; signed webhook 200, galat signature 401, dashboard aur /privacy chale. GitHub CI par compose stack bhi boot hua (docker + test jobs success). Mere sandbox mein Docker Hub ne Postgres image rok di thi, isliye full compose wahin GitHub par verify hua.",
       "files": "Dockerfile, docker-compose.yml, DEPLOY.md, .github/workflows/ci.yml",
       "aage": "Aap: PR #2 phir PR #3 merge karo. Asli hosting (server/account), monitoring aur secrets manager aapko lena hoga."
+    },
+    {
+      "no": 18,
+      "kaam": "Postgres row-level security (RLS)",
+      "kiya": "Har household-table par database policy; tenant kaam sl_app role aur app.household_id ke saath chalta hai. Dashboard ke saare requests aur WhatsApp ke member messages isi scoped transaction mein. Bina household set kiye koi row nahi dikhti (fail closed).",
+      "status": "Ho gaya",
+      "proof": "63 tests pass (purane 56 ab RLS ke saath + 7 naye). Naye tests: har table secured ya reviewed allow-list mein; A sirf A ki rows dekhta hai; doosre ke data mein insert/update/delete refuse; galat household id dene par bhi DB refuse. Policies jaan-boojh kar todkar dekha: tests fail hue, restore par pass. Browser mein dashboard chala, koi RLS error nahi. GitHub CI success.",
+      "files": "server/src/db/rls.sql, server/src/db/tenant.ts, server/test/rls.test.ts, DEPLOY.md (section 5)",
+      "aage": "Aap: PR #3, phir PR #4 merge karo. Dhyan: RLS galat WHERE ya galat id se bachata hai, jaan-boojh kar chalaye gaye arbitrary SQL se nahi; login/onboarding/outbox/jobs/admin trusted system paths hain jo cross-household chalte hain."
     }
   ],
   "fixes": [
@@ -198,6 +207,10 @@
     {
       "galti": "Main PR bina diff ke nahi ban pa rahi thi (kaam seedha main par push hua tha).",
       "theek": "Review-only PR #1 baseline branch ke saath banayi. Aage har kaam feature branch + PR se (jaise PR #2)."
+    },
+    {
+      "galti": "Mere pehle RLS tests pehli baar mein hi pass ho gaye, jab ki setup har baar policies dobara laga deta tha (tests kuch pakad nahi rahe the, ye maine socha).",
+      "theek": "Alag database par policies jaan-boojh kar todi (table ki RLS hataai, policy khuli kar di): tests fail hue. Matlab tests sach mein kaam karte hain."
     }
   ],
   "pending": [
@@ -240,11 +253,6 @@
       "kaam": "Hosting par asli deploy, monitoring, secrets manager",
       "kaun": "Aap (server/account chahiye)",
       "kab": "Pilot se pehle"
-    },
-    {
-      "kaam": "Postgres row-level security",
-      "kaun": "Claude",
-      "kab": "Aap bolo to"
     },
     {
       "kaam": "Receipt OCR, pantry photos, payments, billing",
