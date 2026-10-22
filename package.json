@@ -2,13 +2,17 @@
   "name": "shared-living",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["server", "web"],
+  "workspaces": [
+    "server",
+    "web"
+  ],
   "scripts": {
     "test": "npm -w server test",
     "build:web": "npm -w web run build",
     "start": "npm -w server start",
     "dev:server": "npm -w server run dev",
     "migrate": "npm -w server run migrate",
-    "eval": "npm -w server run eval"
+    "eval": "npm -w server run eval",
+    "typecheck": "npm -w server run typecheck && npm -w web run typecheck"
   }
 }
