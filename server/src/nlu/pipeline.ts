@@ -13,6 +13,7 @@ import { missingField, type Action } from './schema.js';
 import { confirmDelete, executeAction, waLink, type Ctx, type ExecResult, type Pending } from './execute.js';
 import { resolveMember } from './names.js';
 import { localDate } from './tz.js';
+import { scopeTo } from '../db/tenant.js';
 
 export type InboundMsg = {
   waMessageId: string; phone: string; profileName?: string | null;
@@ -102,6 +103,7 @@ export async function handleInbound(deps: Deps, msg: InboundMsg): Promise<Handle
       const member = await getMemberByPhone(db, phone);
       if (!member) return onboarding(db, phone, text, msg.profileName ?? null, now);
       await touchInbound(db, member.id);
+      await scopeTo(db, member.household_id); // from here on Postgres only shows this household's rows
       const h = await getHousehold(db, member.household_id);
       const members = await listMembers(db, h.id);
       const lang = detectLang(text, asLang(member.language ?? h.language));

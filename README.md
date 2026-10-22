@@ -19,7 +19,7 @@ Point Meta's webhook at `POST /webhook/whatsapp` (verification: `GET` with `WA_V
 ## Tests
 ```bash
 createdb shared_living_test
-npm test                 # 56 tests: money, planner, schedule, isolation, pipeline, webhook, adapters (against local fakes), pantry, rate limits
+npm test                 # 63 tests (incl. row-level security): money, planner, schedule, isolation, pipeline, webhook, adapters (against local fakes), pantry, rate limits
 npm run eval             # 226-message evaluation (rules, plus model if a key is set) -> eval/report.json
 ```
 `TEST_DATABASE_URL` overrides the test DB (default `postgres://postgres@localhost:5433/shared_living_test`).
