@@ -1,0 +1,65 @@
+[
+ {
+  "who": "Aman",
+  "text": "Aman ne 650 ka saman liya",
+  "bot": [
+   "Likh liya: Aman ne ₹650 diye. Is mahine budget bacha: ₹5,350."
+  ]
+ },
+ {
+  "who": "Priya",
+  "text": "milk aur paneer add karo",
+  "bot": [
+   "List mein add kiya: milk, paneer."
+  ]
+ },
+ {
+  "who": "Raj",
+  "text": "kitna bacha hai?",
+  "bot": [
+   "Budget ₹6,000, kharch ₹650, bacha ₹5,350 (9 din baaki, lagbhag ₹594.44/din)."
+  ]
+ },
+ {
+  "who": "Aman",
+  "text": "3 din ka plan, budget 900, 3 log, veg",
+  "bot": [
+   "3 din ka plan, 3 log, budget ₹900:\nfri — L: Soya chunk curry + roti | D: Besan chilla\nsat — L: Masoor dal + rice | D: Lauki + chana dal + roti\nsun — L: Chana sprout salad bowl | D: Moong dal khichdi\nAndaza kharch ₹239.66. Shopping list update ho gayi. Ek meal badalna ho to bolo \"friday dinner badlo\". Recipe aur nutrition abhi draft hain, expert review baaki hai."
+  ]
+ },
+ {
+  "who": "Priya",
+  "text": "aaj raat rajma bhigona yaad dilana",
+  "bot": [
+   "Reminder set: today 9:00 pm — rajma bhigona"
+  ]
+ },
+ {
+  "who": "Raj",
+  "text": "curry leaves nahi milte",
+  "bot": [
+   "curry leaves nahi mila? Ye use karo: a pinch of hing plus a little extra mustard seeds; or 1 bay leaf (flavour is different)."
+  ]
+ },
+ {
+  "who": "Raj",
+  "text": "Raj ne 300 ki sabzi li Raj 100 Priya 200",
+  "bot": [
+   "Likh liya: Raj ne ₹300 diye (sabzi), Raj ₹100, Priya ₹200 ke beech split. Is mahine budget bacha: ₹5,050."
+  ]
+ },
+ {
+  "who": "Aman",
+  "text": "kisko kitna dena hai?",
+  "bot": [
+   "Kisko kitna dena hai (suggestion):\n• Priya → Aman: ₹416.66\n• Raj → Aman: ₹16.67"
+  ]
+ },
+ {
+  "who": "Raj",
+  "text": "ab kya karein",
+  "bot": [
+   "Ab kya karna chahiye:\n• Weekly plan abhi draft hai. Dashboard (Plan tab) par approve kar do.\n• Shopping list mein 21 items hain aur kisi ko lene ke liye assign nahi kiya."
+  ]
+ }
+]
