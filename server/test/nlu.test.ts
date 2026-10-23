@@ -32,6 +32,7 @@ test('amounts', () => {
 
 test('language detection follows script', () => {
   assert.equal(detectLang('how much is left?'), 'en'); assert.equal(detectLang('kitna bacha hai'), 'hinglish');
+  assert.equal(detectLang('ab kya karein'), 'hinglish'); assert.equal(detectLang('kya karna chahiye'), 'hinglish'); assert.equal(detectLang('what should we do next'), 'en');
   assert.equal(detectLang('कितना बचा'), 'hi'); assert.equal(detectLang('ਕਿੰਨਾ ਬਚਿਆ'), 'pa');
 });
 
